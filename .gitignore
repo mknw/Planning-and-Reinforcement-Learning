@@ -1,0 +1,12 @@
+# python stuff
+__pycache__/
+venv/
+env/
+*.py[cod]
+*.so
+.ipynb_checkpoints/
+
+
+# backups and custom.
+*.swp
+*~

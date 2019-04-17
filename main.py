@@ -12,8 +12,9 @@ OUTSIDE_GRID_PROBABILITY        = 1
 ROBOT_STARTING_COORDINATES      = (3,0)
 SHIPWRECK_COORDINATES           = (2,2)
 GOAL_COORDINATES                = (0,3)
-CRACK_COORDINATE_LIST           = [(1,1), (1,3), (2,3), (3,1), (3,2), (3.3)]
+CRACK_COORDINATE_LIST           = [(1,1), (1,3), (2,3), (3,1), (3,2), (3,3)]
 
 CRACK_REWARD                    = -10
 SHIPWRECK_REWARD                =  20
 GOAL_REWARD                     = 100
+
