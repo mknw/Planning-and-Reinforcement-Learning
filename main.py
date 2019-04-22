@@ -18,3 +18,19 @@ CRACK_REWARD                    = -10
 SHIPWRECK_REWARD                =  20
 GOAL_REWARD                     = 100
 
+
+
+import numpy as np
+import random
+from env import Environment
+
+
+
+
+if __name__ == "__main__":
+	
+	# Frozen lake environment 
+	FLenv = Environment()
+	FLenv.step("U")
+
+	print('initialized')
