@@ -1,5 +1,6 @@
 import numpy as np
 import curses
+import random
 
 """ rewards memo """
 # ship wreck -> +20
@@ -60,13 +61,11 @@ class Environment(object):
 		return self.pos_mtx
 
 
-	def step(self, action):
-		""" when step is performed, takes action from agent
-		Returns:
-		- destination_state,
-		- reward,
-		- "done" state (if goal achieved) """
-		# Perform action, update position:
+	def move(self, action):
+		
+		stop = False
+
+		prev_pos = np.copy(self.pos)
 		if action == "U":
 			self.pos[0] = np.max([0, self.pos[0]-1])
 		elif action == "D":
@@ -78,15 +77,45 @@ class Environment(object):
 		else:
 			raise ValueError("Possible action values are: " + str(self.action_space))
 		
+		# if no progres was made in the past movement, indicates agent 
+		# is positioned along the maps' boundaries (STOP)
+		if np.all(prev_pos == self.pos):
+			stop = True
+			current_state = self.lake_map[self.pos_mtx][0]
+			return current_state, stop
 
-		# if self.pos has been assigned, we can fetch our position wrt. the map.
 		pos_mtx = self.get_pos()
-		current_state = self.lake_map[pos_mtx][0]
+		current_state = self.lake_map[self.pos_mtx][0]
+		return current_state, stop
 
-		if current_state == "F":
-			# slide if < .05 
-			pass
-		return self.current_state
+	def step(self, action):
+		""" when step is performed, takes action from agent
+		Returns:
+		- destination_state,
+		- reward,
+		- "done" state (if goal achieved) """
+		# Perform action, update position:
+		current_state , _= self.move(action)
+
+		if current_state == "C":
+			print("GAME OVER")
+
+		elif current_state == "F":
+			# if frozen tile, slip 5% of the times.
+			if random.uniform(0, 1) <= .05:
+				stop = False
+				while not stop:
+					current_state, stop = self.move(action)
+					if current_state == "C":
+						print("GAME OVER")
+						brea
+		elif current_state == "G":
+			print("YOU WON!")
+
+		elif current_state == "C": # 0.95 chances not slipping:
+			print("GAME OVER")
+					
+		return 
 
 
 
