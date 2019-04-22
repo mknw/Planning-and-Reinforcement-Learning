@@ -16,11 +16,16 @@ class Environment(object):
 	def __init__(self, size=4, start_coords=(3, 0), wreck_coords=(2,2), goal_coords=(0,3),
 				crack_coords=[(1,1), (1,3), (2,3), (3,1), (3,2), (3,3)]):
 		self.size = size
+		
+		self.start_coords = start_coords
+		self.wreck_coords = wreck_coords
+		self.goal_coords = goal_coords
+		self.crack_coords = crack_coords
+
 		self.lake_map = np.zeros((size, size)).astype(str)
 		self.state_space = ["S", "F", "H", "W", "G"] # start, frozen, crack, wreck, goal
 		self.action_space = ['U', 'D', 'R', 'L'] # up, down, right, left
-		self.reset(start_coords, wreck_coords, goal_coords, crack_coords)
-		# self.rewards # 100, 20, -10
+		self.reset()
 		pass
 
 	def __repr__(self):
@@ -35,15 +40,15 @@ class Environment(object):
 		return np.random.choice(self.action_space)
 
 
-	def reset(self, start_coords, wreck_coords, goal_coords, crack_coords):
+	def reset(self):
 
 		# reset enviroment to pristine conditions.
 		self.lake_map[:] = "F"
-		self.lake_map[start_coords] = "S"
-		self.lake_map[wreck_coords] = "W"
-		self.lake_map[goal_coords] = "G"
+		self.lake_map[self.start_coords] = "S"
+		self.lake_map[self.wreck_coords] = "W"
+		self.lake_map[self.goal_coords] = "G"
 		# crack coordinates are many. We 'unzip' the tuples and index the matrix only once:
-		y_crack, x_crack = list(zip(*crack_coords))
+		y_crack, x_crack = list(zip(*self.crack_coords))
 		self.lake_map[y_crack, x_crack] = "C"
 		print("Environment renewed.")
 		# generates self.pos_mtx to keep track of agent.
@@ -97,25 +102,37 @@ class Environment(object):
 		# Perform action, update position:
 		current_state , _= self.move(action)
 
-		if current_state == "C":
+		if current_state == "C": # Falling?
 			print("GAME OVER")
+			done = True
+			reward = -10
+			return current_state, reward, done
 
-		elif current_state == "F":
-			# if frozen tile, slip 5% of the times.
+		elif current_state == "F": # Slipping on frozen ice?
 			if random.uniform(0, 1) <= .05:
 				stop = False
 				while not stop:
 					current_state, stop = self.move(action)
 					if current_state == "C":
 						print("GAME OVER")
-						brea
-		elif current_state == "G":
-			print("YOU WON!")
+						reward = -10
+						done = True
+			else:
+				reward = 0
+				done = False
 
-		elif current_state == "C": # 0.95 chances not slipping:
-			print("GAME OVER")
-					
-		return 
+		elif current_state == "G": # Goal reached?
+			print("YOU WON!")
+			done = True # episode ended.
+			reward = 100
+
+		elif current_state == "W": # Wreck found?
+			reward = 20
+			done = False
+			print("Wreck found!")
+		
+		self.render()
+		return current_state, reward, done
 
 
 
@@ -123,7 +140,9 @@ class Environment(object):
 		# show something, somewhere. Ideally on a screen.
 		# We actually render this not useful by using the data model "__repr__",
 		# but let's keep it for now. 
-		print(self)
+		disp = self.lake_map.copy()
+		disp[self.pos_mtx] = "#"
+		print(disp)
 		pass
 
 
