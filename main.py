@@ -31,6 +31,36 @@ if __name__ == "__main__":
 	
 	# Frozen lake environment 
 	FLenv = Environment()
-	FLenv.step("U")
+	 
+	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
+	
+	alpha, gamma, epsilon = .1, .6, .1
 
-	print('initialized')
+	
+	for i in range(1000):
+		FLenv.reset()
+		epochs, penalties, reward = 0, 0, 0
+		done = False
+
+		while not done:
+			if random.uniform(0, 1) < epsilon:
+				action = env.sample_action()
+			else:
+				# C(urrent) S(tate)
+				C_S = FLenv.pos_mtx.flatten().astype(bool) 
+				action = np.argmax(Q[C_S])
+
+			next_state, reward, done = FLenv.step(action)
+			
+			prev_val = Q[C_S, action]
+			next_max = np.max(Q[next_state])
+
+			new_val = (1-alpha)*old_value+alpha*(reward + gamma * next_max)
+			q_table[C_S, action] = new_val
+
+			state = next_state
+			epochs += 1
+		
+		if i % 100 == 0:
+			print("Episode: {i}.")
+

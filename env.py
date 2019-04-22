@@ -23,9 +23,14 @@ class Environment(object):
 		self.crack_coords = crack_coords
 
 		self.lake_map = np.zeros((size, size)).astype(str)
-		self.state_space = ["S", "F", "H", "W", "G"] # start, frozen, crack, wreck, goal
+		self.state_space = ["S", "F", "C", "W", "G"] # start, frozen, crack, wreck, goal
 		self.action_space = ['U', 'D', 'R', 'L'] # up, down, right, left
 		self.reset()
+		self.observation_space = self.lake_map.flatten()
+		self.observation_space_n = self.lake_map.size
+		self.action_space_n = len(self.action_space)
+
+		self.map_actions = {k:v for k, v in enumerate(self.action_space)}
 		pass
 
 	def __repr__(self):
@@ -66,10 +71,11 @@ class Environment(object):
 		return self.pos_mtx
 
 
-	def move(self, action):
+	def move(self, action_n):
 		
 		stop = False
-
+		
+		action = self.map_actions[action_n]
 		prev_pos = np.copy(self.pos)
 		if action == "U":
 			self.pos[0] = np.max([0, self.pos[0]-1])
@@ -112,8 +118,8 @@ class Environment(object):
 			if random.uniform(0, 1) <= .05:
 				stop = False
 				while not stop:
-					current_state, stop = self.move(action)
-					if current_state == "C":
+					next_state, stop = self.move(action)
+					if next_state == "C":
 						print("GAME OVER")
 						reward = -10
 						done = True
@@ -121,19 +127,20 @@ class Environment(object):
 				reward = 0
 				done = False
 
-		elif current_state == "G": # Goal reached?
+		elif next_state == "G": # Goal reached?
 			print("YOU WON!")
 			done = True # episode ended.
 			reward = 100
 
-		elif current_state == "W": # Wreck found?
+		elif next_state == "W": # Wreck found?
 			reward = 20
 			done = False
 			print("Wreck found!")
 		
 		self.render()
-		return current_state, reward, done
-
+		state_coords = np.where(self.pos_mtx == True)
+		next_state = (state_coords[0] * self.size) + state_coords[1]
+		return next_state, reward, done
 
 
 	def render(self):
