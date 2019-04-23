@@ -7,6 +7,8 @@ import random
 # goal -> +100
 # crack -> -10 and end episode.
 """" probs memo """
+
+
 # moving: 0.95
 # slipping: 0.05
 
@@ -42,7 +44,7 @@ class Environment(object):
 		# choose random action from self, action_space
 		# (randomly called against epsylon)
 		# return: action
-		return np.random.choice(self.action_space)
+		return np.random.randint(0, len(self.action_space))
 
 
 	def reset(self):
@@ -67,7 +69,7 @@ class Environment(object):
 		# keep track of agent position by boolean pointer. 
 		self.pos_mtx = np.zeros((self.size, self.size)).astype(bool)
 		self.pos_mtx[tuple(self.pos)] = True
-		print("Agent at position: " + str(self.pos))
+		# print("Agent at position: " + str(self.pos))
 		return self.pos_mtx
 
 
@@ -79,25 +81,26 @@ class Environment(object):
 		action = self.map_actions[action_n]
 		prev_pos = np.copy(self.pos)
 		if action == "U":
-			self.pos[0] = np.max([0, self.pos[0]-1])
+			self.pos[0] = np.max( [0, self.pos[0]-1] )
 		elif action == "D":
-			self.pos[0] = np.min([self.pos[0]+1, self.size-1])
+			self.pos[0] = np.min( [self.pos[0]+1, self.size-1])
 		elif action == "L":
-			self.pos[1] = np.max([0, self.pos[1] - 1])
+			self.pos[1] = np.max( [0, self.pos[1] - 1])
 		elif action == "R":
-			self.pos[1] = np.min([self.pos[1] + 1, self.size - 1])
+			self.pos[1] = np.min( [self.pos[1] + 1, self.size - 1])
 		else:
-			raise ValueError("Possible action values are: " + str(self.action_space))
+			raise ValueError("Possible action values are: " + str(self.map_actions))
+		
+		self.pos = np.array(self.pos) # make 1 array for upcoming comparison.
 		
 		# if no progres was made in the past movement, indicates agent 
 		# is positioned along the maps' boundaries (STOP)
 		if np.all(prev_pos == self.pos):
 			stop = True
-			current_state = self.lake_map[self.pos_mtx][0]
-			return current_state, stop
 
 		pos_mtx = self.get_pos()
 		current_state = self.lake_map[self.pos_mtx][0]
+		# create state vector by flattening state map.
 		return current_state, stop
 
 	def step(self, action):
@@ -105,17 +108,21 @@ class Environment(object):
 		Returns:
 		- destination_state,
 		- reward,
-		- "done" state (if goal achieved) """
+		- "done" state (if goal achieved)
+		"""
 		# Perform action, update position:
-		current_state , _= self.move(action)
 
-		if current_state == "C": # Falling?
+		current_state, stop = self.move(action)
+		# Initialize reward as 0 here if nothing happens
+		
+		if stop: # did the agent move at all from his starting pos?
+			reward = 0
+			done = False
+		elif current_state == "C":  # Did he move on a crack?
 			print("GAME OVER")
 			done = True
 			reward = -10
-			return current_state, reward, done
-
-		elif current_state == "F": # Slipping on frozen ice?
+		elif current_state == "F":  # After moving, his he slipping on frozen ice?
 			if random.uniform(0, 1) <= .05:
 				stop = False
 				while not stop:
@@ -124,30 +131,40 @@ class Environment(object):
 						print("GAME OVER")
 						reward = -10
 						done = True
+					else:
+						print("slipping away...")
+						reward = 0
+						done = False
 			else:
 				reward = 0
 				done = False
-
-		elif next_state == "G": # Goal reached?
-			print("YOU WON!")
-			done = True # episode ended.
-			reward = 100
-
-		elif next_state == "W": # Wreck found?
+		elif current_state == "W":  # Wreck found?
 			reward = 20
 			done = False
 			print("Wreck found!")
-		
+		elif current_state == "G":  # Goal reached?
+			print("YOU WON!")
+			done = True  # episode ended.
+			reward = 100
+		else:
+			done = False
+			reward = 0
+
 		self.render()
-		state_coords = np.where(self.pos_mtx == True)
-		next_state = (state_coords[0] * self.size) + state_coords[1]
+		next_state = self.get_state()
 		return next_state, reward, done
 
+	def get_state(self):
+		"""Outputs state as integer
+		from self.pos_mtx (mapping between lake and states)"""
+		state_coords = np.where(self.pos_mtx == True)
+		next_state = (state_coords[0] * self.size) + state_coords[1]
+		return next_state
 
 	def render(self):
 		# show something, somewhere. Ideally on a screen.
 		# We actually render this not useful by using the data model "__repr__",
-		# but let's keep it for now. 
+		# but let's keep it for now.
 		disp = self.lake_map.copy()
 		disp[self.pos_mtx] = "#"
 		print(disp)
@@ -155,6 +172,7 @@ class Environment(object):
 
 
 if __name__ == "__main__":
-	env = Environment()
-	import ipdb; ipdb.set_trace()
+    env = Environment()
+    import ipdb;
 
+    ipdb.set_trace()
