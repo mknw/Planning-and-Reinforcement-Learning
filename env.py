@@ -67,7 +67,8 @@ class Environment(object):
 		# keep track of agent position by boolean pointer. 
 		self.pos_mtx = np.zeros((self.size, self.size)).astype(bool)
 		self.pos_mtx[tuple(self.pos)] = True
-		print("Agent at position: " + str(self.pos))
+		x, y = int(self.pos[0]), int(self.pos[1])
+		print("Agent at position: " + str(x),str(y))
 		return self.pos_mtx
 
 

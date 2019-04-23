@@ -22,6 +22,7 @@ GOAL_REWARD                     = 100
 
 import numpy as np
 import random
+import env
 from env import Environment
 
 
@@ -29,7 +30,7 @@ from env import Environment
 
 if __name__ == "__main__":
 	
-	# Frozen lake environment 
+	# Frozen lake environment
 	FLenv = Environment()
 	 
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
@@ -44,7 +45,7 @@ if __name__ == "__main__":
 
 		while not done:
 			if random.uniform(0, 1) < epsilon:
-				action = env.sample_action()
+				action = FLenv.sample_action()
 			else:
 				# C(urrent) S(tate)
 				C_S = FLenv.pos_mtx.flatten().astype(bool) 
@@ -55,8 +56,8 @@ if __name__ == "__main__":
 			prev_val = Q[C_S, action]
 			next_max = np.max(Q[next_state])
 
-			new_val = (1-alpha)*old_value+alpha*(reward + gamma * next_max)
-			q_table[C_S, action] = new_val
+			new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
+			Q[C_S, action] = new_val
 
 			state = next_state
 			epochs += 1
