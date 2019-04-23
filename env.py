@@ -42,7 +42,7 @@ class Environment(object):
 		# choose random action from self, action_space
 		# (randomly called against epsylon)
 		# return: action
-		return np.random.choice(self.action_space)
+		return self.action_space.index(np.random.choice(self.action_space))
 
 
 	def reset(self):
@@ -91,7 +91,7 @@ class Environment(object):
 		
 		# if no progres was made in the past movement, indicates agent 
 		# is positioned along the maps' boundaries (STOP)
-		if np.all(prev_pos == self.pos):
+		if np.all(prev_pos == self.pos_mtx):
 			stop = True
 			current_state = self.lake_map[self.pos_mtx][0]
 			return current_state, stop
