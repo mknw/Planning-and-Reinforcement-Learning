@@ -44,13 +44,17 @@ if __name__ == "__main__":
 		done = False
 
 		while not done:
+			"""
 			if random.uniform(0, 1) < epsilon:
+				C_S = FLenv.pos_mtx.flatten().astype(bool)
 				action = FLenv.sample_action()
 			else:
 				# C(urrent) S(tate)
 				C_S = FLenv.pos_mtx.flatten().astype(bool) 
 				action = np.argmax(Q[C_S])
-
+			"""
+			C_S = FLenv.pos_mtx.flatten().astype(bool)
+			action = FLenv.sample_action()
 			next_state, reward, done = FLenv.step(action)
 			
 			prev_val = Q[C_S, action]
