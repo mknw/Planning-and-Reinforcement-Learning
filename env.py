@@ -75,6 +75,7 @@ class Environment(object):
 		
 		stop = False
 		
+		#TODO: invert following dict mapping:
 		action = self.map_actions[action_n]
 		prev_pos = np.copy(self.pos)
 		if action == "U":
