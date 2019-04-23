@@ -1,6 +1,5 @@
 """ Group 2, Planning & Reinforcement Learning 2019
-    Ilze Amanda Auzina, Phillip Kersten,
-    Florence van der Voort, Stefan Wijtsma
+    Ilze Amanda Auzina, Phillip Kersten, Michael Accetto
     Assignment Part 1"""
 
 
@@ -23,7 +22,7 @@ GOAL_REWARD                     = 100
 import numpy as np
 import random
 import env
-from env import Environment
+from env import Environment, save_ts_pickle
 
 
 
@@ -36,34 +35,48 @@ if __name__ == "__main__":
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 	
 	alpha, gamma, epsilon = .1, .6, .1
-
+	episodes = 1000 
 	
-	for i in range(1000):
-		FLenv.reset()
-		epochs, penalties, reward = 0, 0, 0
-		done = False
+	log = []
 
+	for i in range(episodes):
+		FLenv.reset()
+		epochs, penalties, tot_reward = 0, 0, 0
+		done = False
+		print("episode: " + str(i))
 		while not done:
 			
 			if random.uniform(0, 1) < epsilon or i<=250:
-				C_S = FLenv.pos_mtx.flatten().astype(bool)
 				action = FLenv.sample_action()
+				C_S = FLenv.pos_mtx.flatten().astype(bool) 
 			else:
 				# C(urrent) S(tate)
 				C_S = FLenv.pos_mtx.flatten().astype(bool) 
 				action = np.argmax(Q[C_S])
-			print("epoch n: " + str(i))
+
 			next_state, reward, done = FLenv.step(action)
+
+			if reward == -10:
+				penalties += 1
+			tot_reward += reward 
 			
+			# Bell's Equation:
 			prev_val = Q[C_S, action]
 			next_max = np.max(Q[next_state])
-
 			new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
+			# update Q table.
 			Q[C_S, action] = new_val
 
 			state = next_state
+			# append to log
 			epochs += 1
+		
+		log.append([i, epochs, penalties, tot_reward])
 		
 		if i % 100 == 0:
 			print("Episode: {i}.")
+	
 
+
+	save_ts_pickle('log', log)
+	save_ts_pickle('Qtable', Q)

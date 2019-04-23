@@ -77,7 +77,6 @@ class Environment(object):
 		
 		stop = False
 		
-		#TODO: invert following dict mapping:
 		action = self.map_actions[action_n]
 		prev_pos = np.copy(self.pos)
 		if action == "U":
@@ -122,6 +121,8 @@ class Environment(object):
 			print("GAME OVER")
 			done = True
 			reward = -10
+			next_state = self.get_state()
+			return next_state, reward, done # return here to stepside "self.render()" after agent loss.
 		elif current_state == "F":  # After moving, his he slipping on frozen ice?
 			if random.uniform(0, 1) <= .05:
 				stop = False
@@ -170,6 +171,15 @@ class Environment(object):
 		print(disp)
 		pass
 
+def save_ts_pickle(filepath, var):
+	import pickle
+	import datetime as dt
+
+	filepath = filepath + "_" + str(dt.datetime.today()).split('.')[0]
+	with open(filepath, 'wb') as f:
+		pickle.dump(var, f)
+	print("saved to: " + filepath)
+	pass
 
 if __name__ == "__main__":
     env = Environment()
