@@ -46,7 +46,7 @@ if __name__ == "__main__":
 		print("episode: " + str(i))
 		while not done:
 			
-			if random.uniform(0, 1) < epsilon or i<=250:
+			if random.uniform(0, 1) < epsilon or i<=250: # change to: i<=episodes to turn on random policy.
 				action = FLenv.sample_action()
 				C_S = FLenv.pos_mtx.flatten().astype(bool) 
 			else:
