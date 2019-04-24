@@ -61,7 +61,7 @@ if __name__ == "__main__":
 				penalties += 1
 			tot_reward += reward 
 			
-			# Bell's Equation:
+			# Bellman Equation:
 			prev_val = Q[C_S, action]
 			next_max = np.max(Q[next_state])
 			new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
