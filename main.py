@@ -48,9 +48,10 @@ if __name__ == "__main__":
 			
 			if random.uniform(0, 1) < epsilon or i<=250: # change to: i<=episodes to turn on random policy.
 				action = FLenv.sample_action()
+				# Current State fetched from Env object as 16values long 1-hot vector.
 				C_S = FLenv.pos_mtx.flatten().astype(bool) 
 			else:
-				# C(urrent) S(tate)
+				# C(urrent)S(tate) as 1-hot, 16 vals-long vector (same thing).
 				C_S = FLenv.pos_mtx.flatten().astype(bool) 
 				action = np.argmax(Q[C_S])
 

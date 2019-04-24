@@ -72,6 +72,10 @@ class Environment(object):
 
 
 	def move(self, action_n):
+		"""Performs actual movement. 
+		Takes action_n (0, 1, 2 or 3);
+		Updates self.pos_mtx (state matrix);
+		Returns state tile label (F, W, G or C)."""
 		
 		stop = False
 		
@@ -101,21 +105,21 @@ class Environment(object):
 		return current_state, stop
 
 	def step(self, action):
-		""" when step is performed, takes action from agent
+		""" When movement is performed, do the following:
+		- computes outcome (slipping, wreck, game over)
+		- assign 'done' and 'reward' for current step.
 		Returns:
-		- destination_state,
-		- reward,
-		- "done" state (if goal achieved)
+		- destination_state (type: int, range: 0-15 inc.);
+		- reward (type: int);
+		- "done" (end game).
 		"""
 		# Perform action, update position:
-
-		current_state, stop = self.move(action)
-		# Initialize reward as 0 here if nothing happens
+		current_state, stop = self.move(action) # move.
 		
 		if stop: # did the agent move at all from his starting pos?
 			reward = 0
 			done = False
-		elif current_state == "C":  # Did he move on a crack?
+		elif current_state == "C":  # Did he move onto a crack?
 			print("GAME OVER")
 			done = True
 			reward = -10
