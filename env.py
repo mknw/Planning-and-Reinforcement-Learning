@@ -8,7 +8,6 @@ import random
 # crack -> -10 and end episode.
 """" probs memo """
 
-
 # moving: 0.95
 # slipping: 0.05
 
@@ -28,7 +27,6 @@ class Environment(object):
 		self.state_space = ["S", "F", "C", "W", "G"] # start, frozen, crack, wreck, goal
 		self.action_space = ['U', 'D', 'R', 'L'] # up, down, right, left
 		self.reset()
-		self.observation_space = self.lake_map.flatten()
 		self.observation_space_n = self.lake_map.size
 		self.action_space_n = len(self.action_space)
 
