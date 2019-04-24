@@ -58,6 +58,7 @@ class Environment(object):
 		print("Environment renewed.")
 		# generates self.pos_mtx to keep track of agent.
 		self.get_pos(reset=True) # set position matrix at "S"tart.
+		self.out_grid = False
 		pass
 
 	def get_pos(self, reset=False):
@@ -115,10 +116,12 @@ class Environment(object):
 		"""
 		# Perform action, update position:
 		current_state, stop = self.move(action) # move.
+		self.out_grid = False
 		
 		if stop: # did the agent move at all from his starting pos?
 			reward = 0
 			done = False
+			self.out_grid = True
 		elif current_state == "C":  # Did he move onto a crack?
 			print("GAME OVER")
 			done = True
@@ -157,6 +160,22 @@ class Environment(object):
 		next_state = self.get_state()
 		return next_state, reward, done
 
+	def sim_step(self, state, action):
+		
+		self.pos_mtx = np.reshape(state, (4, 4))
+		next_state, reward, done = self.step(action)
+		return next_state, reward, done
+
+
+	def to_coords(self, onehot_state):
+		rem = 0
+		while state % 3 !=0:
+			state = state - 1
+			rem += 1
+		row = state // 3
+		col = rem
+		return (col, row)
+
 	def get_state(self):
 		"""Outputs state as integer
 		from self.pos_mtx (mapping between lake and states)"""
@@ -172,6 +191,7 @@ class Environment(object):
 		disp[self.pos_mtx] = "#"
 		print(disp)
 		pass
+
 
 def save_ts_pickle(filepath, var):
 	import pickle

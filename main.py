@@ -32,9 +32,11 @@ if __name__ == "__main__":
 	# Frozen lake environment
 	FLenv = Environment()
 	 
-	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
-	
-	alpha, gamma, epsilon = .1, .6, .1
+	V_s = np.zeros([FLenv.size, FLenv.size])
+	states = [0, 1, 2, 4, 6, 8, 9, 10, 12]
+	actions = [i for i in range(4)]
+	gamma = .9
+
 	episodes = 1000 
 	
 	log = []
@@ -45,30 +47,29 @@ if __name__ == "__main__":
 		done = False
 		print("episode: " + str(i))
 		while not done:
-			
-			if random.uniform(0, 1) < epsilon or i<=250: # change to: i<=episodes to turn on random policy.
-				action = FLenv.sample_action()
-				# Current State fetched from Env object as 16values long 1-hot vector.
-				C_S = FLenv.pos_mtx.flatten().astype(bool) 
-			else:
-				# C(urrent)S(tate) as 1-hot, 16 vals-long vector (same thing).
-				C_S = FLenv.pos_mtx.flatten().astype(bool) 
-				action = np.argmax(Q[C_S])
 
-			next_state, reward, done = FLenv.step(action)
+			for s in states:
+				stt_val = 0
+				state = np.zeros((16)).astype(bool)
+				state[s] = True
+				for act in actions:
+
+					next_state, reward, done = FLenv.sim_step(state, act)
+
+					if FLenv.out_grid:
+						stt_val += (.25 * (reward+(gamma*V_s[FLenv.pos_mtx])))
+					else:
+						stt_val += (.25 * .95 * (reward+(gamma*V_s[FLenv.pos_mtx])))
+				V_s[ np.reshape(state, (4, 4)) ] = stt_val
+			# Current State fetched from Env object as 16values long 1-hot vector.
 
 			if reward == -10:
 				penalties += 1
 			tot_reward += reward 
 			
 			# Bellman Equation:
-			prev_val = Q[C_S, action]
-			next_max = np.max(Q[next_state])
-			new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
-			# update Q table.
-			Q[C_S, action] = new_val
+			
 
-			state = next_state
 			# append to log
 			epochs += 1
 		
@@ -76,8 +77,3 @@ if __name__ == "__main__":
 		
 		if i % 100 == 0:
 			print("Episode: {i}.")
-	
-
-
-	save_ts_pickle('log', log)
-	save_ts_pickle('Qtable', Q)

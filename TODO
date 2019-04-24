@@ -1,0 +1,2 @@
+1. check if FLenv.out_grid is assigned properly, or:
+	compare state and next state for V computation. 

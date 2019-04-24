@@ -6,7 +6,7 @@ env/
 *.so
 .ipynb_checkpoints/
 
-
+TODO
 # backups and custom.
 *.swp
 *~
