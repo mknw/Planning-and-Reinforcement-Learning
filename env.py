@@ -15,13 +15,17 @@ import random
 class Environment(object):
 	
 	def __init__(self, size=4, start_coords=(3, 0), wreck_coords=(2,2), goal_coords=(0,3),
-				crack_coords=[(1,1), (1,3), (2,3), (3,1), (3,2), (3,3)]):
+				crack_coords=[(1,1), (1,3), (2,3), (3,1), (3,2), (3,3)],
+				 non_terminal_states=[12, 1, 2, 4, 6, 8, 9, 10, 0],
+				 actions=[i for i in range(4)]):
 		self.size = size
 		
 		self.start_coords = start_coords
 		self.wreck_coords = wreck_coords
 		self.goal_coords = goal_coords
 		self.crack_coords = crack_coords
+		self.states=non_terminal_states
+		self.actions=actions
 
 		self.lake_map = np.zeros((size, size)).astype(str)
 		self.state_space = ["S", "F", "C", "W", "G"] # start, frozen, crack, wreck, goal
@@ -195,16 +199,131 @@ class Environment(object):
 		s_prime, reward, hit_grid = self.step(action) #here s_prime is coordinates
 		return s_prime, reward, hit_grid
 
-	def actions(self, state, Vs):
+	def calc_action_value(self, state, Vs, gamma):
 		action_outcome=np.zeros(4)
 		for act in range(self.size):
 			s_prime, reward, hit_grid =self.sim_step(state,act)
 			if hit_grid:
-				action_outcome[act] += reward+(0.9*Vs[s_prime[0][0],s_prime[0][1]])
+				action_outcome[act] += reward+(gamma*Vs[s_prime[0][0],s_prime[0][1]])
 			else:
-				action_outcome[act] += 0.95*(reward+(0.9*Vs[s_prime[0][0],s_prime[0][1]]))
+				action_outcome[act] += 0.95*(reward+(gamma*Vs[s_prime[0][0],s_prime[0][1]]))
 
 		return action_outcome
+
+	def evaluate_policy(self, policy, gamma):
+		V_s = np.zeros((self.size, self.size))
+		#threshold=0.0001
+		deltaAll=[]
+		iterations=1000
+	#	delta=0
+
+		#while True:
+		for i in range(iterations):
+			deltaIteration = []
+			copyV_s = np.copy(V_s)
+			for s in self.states:  # select a state s (s is an integer)
+				expected_val = 0
+				state = np.zeros((16)).astype(bool)  # convert to boolean array
+				state[s] = True
+				for act, act_probability in enumerate(policy[s]):  # select all possible actions in this state (act is an integer)
+					s_prime, reward, hit_grid = self.sim_step(state, act)  # pass a boolean array and an int
+
+					if hit_grid:
+						expected_val += (act_probability * (reward + (gamma * V_s[s_prime[0][0], s_prime[0][1]])))
+					else:
+
+						expected_val += (act_probability * .95 * (reward + (gamma * V_s[s_prime[0][0], s_prime[0][1]])))
+				# list of delta value fro every state in an itteration
+				#delta=max(delta, np.abs(V_s[np.reshape(state, (4, 4))] - expected_val))
+				deltaIteration.append(np.abs(V_s[np.reshape(state, (4, 4))] - expected_val))
+				V_s[np.reshape(state, (4, 4))] = expected_val
+
+			deltaAll.append(deltaIteration)
+			# if i in [0,1,2,9, 99, iterations-1]:
+			# 	print("Iteration {}".format(iterations + 1))
+			# 	print(V_s)
+			# 	print("")
+
+		#	if delta<threshold:
+			#	break
+		return V_s, deltaAll
+
+	def value_iteration(self, gamma, iterations):
+		V_s = np.zeros((self.size, self.size))
+		dictMoves={}
+		delta_total=[]
+		for i in self.states:
+			dictMoves[i] = 0
+
+		for i in range(iterations):
+			delta_valueit = []
+			for s in self.states:  # s is an integer
+				state = np.zeros((16)).astype(bool)  # boolean array
+				state[s] = True
+				all_actions_for_s = self.calc_action_value(state, V_s, gamma)
+				best_action = np.max(all_actions_for_s)
+				index_action = list(all_actions_for_s).index(best_action)
+				action_letter = self.map_actions[index_action]
+				# record best action for a certain state
+				dictMoves[s] = action_letter
+
+				# update Vs
+				delta_valueit.append(np.abs(V_s[np.reshape(state, (4, 4))] - best_action))
+				V_s[np.reshape(state, (4, 4))] = best_action
+			delta_total.append(delta_valueit)
+
+			# if i in [0, 1, 2, 9, 99, iterations - 1]:
+			# 	print("Iteration {}".format(i + 1))
+			# 	print(V_s)
+			# 	print("")
+
+		return V_s, dictMoves
+
+	def policy_iteration(self, gamma):
+		#choose random policy to start with
+		policy = np.ones([self.observation_space_n, self.size]) / 5
+		#for i in iterations:
+		while True:
+			#evaluate the policy
+			Vs, deltas =self.evaluate_policy(policy, gamma)
+
+
+			#policy improvement
+			policy_stable = True
+			for s in self.states:  # s is an integer
+				#select best action under the current policy
+				best_action_policy=np.argmax(policy[s])
+
+				#save all possible action values
+				s_all_actions_values = np.zeros(self.action_space_n)
+				state = np.zeros((16)).astype(bool)  # boolean array
+				state[s] = True
+				for act, act_probability in enumerate(policy[s]):  # select all possible actions in this state (act is an integer)
+					s_prime, reward, hit_grid = self.sim_step(state, act)  # pass a boolean array and an int
+
+					if hit_grid:
+						s_all_actions_values[act] += reward + (gamma * Vs[s_prime[0][0], s_prime[0][1]])
+					else:
+
+						s_all_actions_values[act] += .95 * (reward + (gamma * Vs[s_prime[0][0], s_prime[0][1]]))
+				# list of delta value fro every state in an itteration
+				#delta=max(delta, np.abs(V_s[np.reshape(state, (4, 4))] - expected_val))
+				#the found best action based on the policy
+				best_action_found =np.argmax(s_all_actions_values) #returns the index of the highest value
+
+
+
+				if best_action_policy != best_action_found:
+					policy_stable=False
+					policy[s]=np.eye(self.action_space_n)[best_action_found] #maximaizes the probability of taking the action (Sets to 1) in the given state
+
+				else:
+					policy[s] = np.eye(self.action_space_n)[best_action_found]
+
+			if policy_stable:
+				return 	policy, Vs
+
+
 
 	def to_coords(self, onehot_state):
 		rem = 0

@@ -1,6 +1,6 @@
 """ Group 2, Planning & Reinforcement Learning 2019
-    Ilze Amanda Auzina, Phillip Kersten, Michael Accetto
-    Assignment Part 1"""
+	Ilze Amanda Auzina, Phillip Kersten, Michael Accetto
+	Assignment Part 1"""
 
 
 RANDOM_POLICY_DISCOUNT_FACTOR   = 0.9
@@ -33,97 +33,35 @@ if __name__ == "__main__":
 	FLenv = Environment()
 
 
+	gamma = .9
+	iterations = 1000
 
 	#RANDOM POLICY
-	#simplify by making V_s an array
-	V_s = np.zeros((FLenv.size, FLenv.size))
-	states = [12, 1, 2, 4, 6, 8, 9, 10, 0] #non terminal states
-	actions = [i for i in range(4)]
-	gamma = .9
+	#create a random policy
+	policy_Random = np.ones([FLenv.observation_space_n, FLenv.action_space_n]) / FLenv.action_space_n
 
-	iterations = 1000
-	log = []
-
-	#records delta change after each iteration
-	deltaAll=[]
-	for i in range(iterations):
-	#	FLenv.reset()
-	#	epochs, penalties, tot_reward = 0, 0, 0
-	#	done = False
-	#	print("Iteration: " + str(i))
-	#	while not done:
-		deltaIteration=[]
-		copyV_s=np.copy(V_s)
-		for s in states: #s is an integer
-			stt_val = 0
-			state = np.zeros((16)).astype(bool) #boolean array
-			state[s] = True
-			for act in actions: #act is an integer
-
-				s_prime, reward, hit_grid = FLenv.sim_step(state, act) #pass a boolean array and an int
-
-				if hit_grid:
-					stt_val += (.25 * (reward+(gamma*V_s[s_prime[0][0],s_prime[0][1]])))
-				else:
-					stt_val += (.25 * .95 * (reward+(gamma*V_s[s_prime[0][0],s_prime[0][1]])))
-			#list of delta value fro every state in an itteration
-			deltaIteration.append(np.abs(V_s[np.reshape(state, (4, 4)) ]- stt_val))
-			V_s[ np.reshape(state, (4, 4)) ] = stt_val
-		deltaAll.append(deltaIteration)
-			# Current State fetched from Env object as 16values long 1-hot vector.
-		if i in [0, 1, 2, 9, 99, iterations - 1]:
-			print("Iteration {}".format(i + 1))
-			print(V_s)
-			print("")
+	V_randomPolicy, deltaIterations = FLenv.evaluate_policy(policy_Random, gamma)
 
 	print("Done with Random Policy Evaluation!")
 	print("can check delta for when it convergences")
+	print(V_randomPolicy)
 	print("")
 
-	delta_total=[]
-	Vs=np.zeros((FLenv.size, FLenv.size))
-	dict={}
-	for i in states:
-		dict[i]=0
 
 	#VALUE ITERATION
-	for k in range(iterations):
-		delta_valueit=[]
-		for s in states:  # s is an integer
-			state = np.zeros((16)).astype(bool)  # boolean array
-			state[s] = True
-			all_actions_for_s = FLenv.actions(state,Vs)
-			best_action=np.max(all_actions_for_s)
-			index_action=list(all_actions_for_s).index(best_action)
-			action_letter=FLenv.map_actions[index_action]
-			#index_action=np.where(all_actions_for_s==best_action)
-			#record best action for a certain state
-			dict[s]=action_letter
-
-			#update Vs
-			delta_valueit.append(np.abs(Vs[np.reshape(state, (4, 4))] - best_action))
-			Vs[np.reshape(state, (4, 4))] = best_action
-		delta_total.append(delta_valueit)
-
-		if k in [0, 1, 2, 9, 99, iterations - 1]:
-			print("Iteration {}".format(k + 1))
-			print(Vs)
-			print("")
-
+	V_s_ValueIteration, bestMoves = FLenv.value_iteration(gamma, iterations)
 	print("Done with Value Iteration")
-	print(dict)
-
-
-	#
-			# Bellman Equation:
+	print(V_s_ValueIteration)
+	print(bestMoves)
+	print("")
 
 
 
-			# append to log
-		#	epochs += 1
-		
-		#log.append([i, epochs, penalties, tot_reward])
-		
-		#if i % 100 == 0:
+	#POLICY ITERATION
 
-		#	print("Episode: {i}.")
+	best_policy, Vs_Policy_Iteration = FLenv.policy_iteration(gamma)
+	print("Done with Policy Iteration")
+	print(best_policy)
+	print("")
+	print(Vs_Policy_Iteration)
+
