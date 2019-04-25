@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
 					next_state, reward, done = FLenv.sim_step(state, act)
 
-					if FLenv.out_grid:
+					if FLenv.movement_out_grid:
 						stt_val += (.25 * (reward+(gamma*V_s[FLenv.pos_mtx])))
 					else:
 						stt_val += (.25 * .95 * (reward+(gamma*V_s[FLenv.pos_mtx])))

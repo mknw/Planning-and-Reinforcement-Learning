@@ -58,10 +58,16 @@ class Environment(object):
 		print("Environment renewed.")
 		# generates self.pos_mtx to keep track of agent.
 		self.get_pos(reset=True) # set position matrix at "S"tart.
-		self.out_grid = False
+
+		# flag for computing different probabilities in Howard PI
+		self.movement_out_grid = False
 		pass
 
 	def get_pos(self, reset=False):
+		""" Updates pos_mtx as boolean 'mask' for the lake_map.
+		It does so by using self.pos coordinates, updated in the 
+		'move' method."""
+
 		# get agent starting position
 		if reset == True:
 			self.pos = list(np.where(self.lake_map == "S"))
@@ -106,27 +112,31 @@ class Environment(object):
 		return current_state, stop
 
 	def step(self, action):
-		""" When movement is performed, do the following:
-		- computes outcome (slipping, wreck, game over)
-		- assign 'done' and 'reward' for current step.
+		"""
+		When movement is performed, do the following:
+		 - computes outcome (slipping, wreck, game over)
+		 - assign 'done' and 'reward' for current step.
+		Args:
+		 - action (type: int, range: 0-3 inc.)
+
 		Returns:
-		- destination_state (type: int, range: 0-15 inc.);
-		- reward (type: int);
-		- "done" (end game).
+		 - destination_state (type: int, range: 0-15 inc.);
+		 - reward (type: int);
+		 - "done" (end game).
 		"""
 		# Perform action, update position:
 		current_state, stop = self.move(action) # move.
-		self.out_grid = False
+		self.movement_out_grid = False
 		
 		if stop: # did the agent move at all from his starting pos?
 			reward = 0
 			done = False
-			self.out_grid = True
+			self.movement_out_grid = True
 		elif current_state == "C":  # Did he move onto a crack?
 			print("GAME OVER")
 			done = True
 			reward = -10
-			next_state = self.get_state()
+			next_state = self.get_state_int()
 			return next_state, reward, done # return here to stepside "self.render()" after agent loss.
 		elif current_state == "F":  # After moving, his he slipping on frozen ice?
 			if random.uniform(0, 1) <= .05:
@@ -157,12 +167,23 @@ class Environment(object):
 			reward = 0
 
 		self.render()
-		next_state = self.get_state()
+		next_state = self.get_state_int()
 		return next_state, reward, done
 
 	def sim_step(self, state, action):
-		
+		""" 
+		1. Update internal state (self.pos and self.pos_mtx)
+		2. Simulates step for Howard PI, 
+		Args:
+			- 1hot vector, (type:array, 15values long), indicating
+			  an arbitrary starting position, 
+			- action (type int: 0-3)
+		Returns:
+			--- destination state, reward, done.
+		""" 
+		self.movement_out_grid = False
 		self.pos_mtx = np.reshape(state, (4, 4))
+		self.pos = list(np.where(self.pos_mtx == True))
 		next_state, reward, done = self.step(action)
 		return next_state, reward, done
 
@@ -176,7 +197,7 @@ class Environment(object):
 		col = rem
 		return (col, row)
 
-	def get_state(self):
+	def get_state_int(self):
 		"""Outputs state as integer
 		from self.pos_mtx (mapping between lake and states)"""
 		state_coords = np.where(self.pos_mtx == True)
@@ -191,7 +212,6 @@ class Environment(object):
 		disp[self.pos_mtx] = "#"
 		print(disp)
 		pass
-
 
 def save_ts_pickle(filepath, var):
 	import pickle
