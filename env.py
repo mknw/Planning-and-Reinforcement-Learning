@@ -111,7 +111,7 @@ class Environment(object):
 		# create state vector by flattening state map.
 		return current_state, stop
 
-	def step(self, action):
+	def step(self, action, show_map_pos=False):
 		"""
 		When movement is performed, do the following:
 		 - computes outcome (slipping, wreck, game over)
@@ -165,8 +165,9 @@ class Environment(object):
 		else:
 			done = False
 			reward = 0
-
-		self.render()
+		
+		if show_map_pos:
+			self.render()
 		next_state = self.get_state_int()
 		return next_state, reward, done
 

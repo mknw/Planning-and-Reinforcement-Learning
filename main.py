@@ -37,43 +37,46 @@ if __name__ == "__main__":
 	actions = [i for i in range(4)]
 	gamma = .9
 
-	episodes = 1000 
+	epochs = 10000 
 	
 	log = []
 
-	for i in range(episodes):
+	for i in range(epochs):
 		FLenv.reset()
-		epochs, penalties, tot_reward = 0, 0, 0
+		penalties, tot_reward = 0, 0
 		done = False
 		print("episode: " + str(i))
-		while not done:
 
-			for s in states:
-				stt_val = 0
-				state = np.zeros((16)).astype(bool)
-				state[s] = True
-				for act in actions:
+		for s in states:
+			stt_val = 0
+			state = np.zeros((16)).astype(bool)
+			state[s] = True
+			for act in actions:
+	
+				next_state, reward, done = FLenv.sim_step(state, act)
+	
+				if FLenv.movement_out_grid:
+					stt_val += (.25 * (reward+(gamma*V_s[FLenv.pos_mtx])))
+				else:
+					stt_val += (.25 * .95 * (reward+(gamma*V_s[FLenv.pos_mtx])))
 
-					next_state, reward, done = FLenv.sim_step(state, act)
+				if reward  == -10:
+					penalties += 1
+				tot_reward += reward
+			# assign state value over all actions: 
+			V_s[ np.reshape(state, (4, 4)) ] = stt_val
+	
+		log.append([i, penalties, tot_reward, V_s])
 
-					if FLenv.movement_out_grid:
-						stt_val += (.25 * (reward+(gamma*V_s[FLenv.pos_mtx])))
-					else:
-						stt_val += (.25 * .95 * (reward+(gamma*V_s[FLenv.pos_mtx])))
-				V_s[ np.reshape(state, (4, 4)) ] = stt_val
-			# Current State fetched from Env object as 16values long 1-hot vector.
-
-			if reward == -10:
-				penalties += 1
-			tot_reward += reward 
-			
-			# Bellman Equation:
-			
-
-			# append to log
-			epochs += 1
-		
-		log.append([i, epochs, penalties, tot_reward])
-		
 		if i % 100 == 0:
 			print("Episode: {i}.")
+	
+	# save timestamped log file
+	try:
+		import os
+		save_dir = "howard-trials"
+		os.mkdir(save_dir)
+	except FileExistsError:
+		pass
+	save_path = os.path.join(save_dir, "log")
+	save_ts_pickle(save_path, log)
