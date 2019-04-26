@@ -138,7 +138,7 @@ class Environment(object):
 		#	done = False
 		#	self.out_grid = True
 
-		if s_prime == "F":  # After moving, his he slipping on frozen ice?
+		if s_prime == "F" or s_prime=="W":  # After moving, his he slipping on frozen ice?
 			if not hit_grid:
 				if random.uniform(0, 1) <= .05:
 					stop = False
@@ -153,7 +153,10 @@ class Environment(object):
 						else:
 							reward = 0
 				else:
-					reward = 0
+					if s_prime == "W":
+						reward = 20
+					else:
+						reward=0
 			else:
 				reward = 0
 
@@ -165,8 +168,8 @@ class Environment(object):
 			#return s_prime, reward, hit_grid # return here to stepside "self.render()" after agent loss.
 
 
-		elif s_prime == "W":  # Wreck found?
-			reward = 20
+	#	elif s_prime == "W":  # Wreck found?
+	#		reward = 20
 			#done = False
 			#print("Wreck found!")
 		elif s_prime == "G":  # Goal reached?
