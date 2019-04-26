@@ -20,6 +20,7 @@ GOAL_REWARD                     = 100
 
 
 import numpy as np
+import time
 import random
 import env
 from env import Environment, save_ts_pickle
@@ -38,19 +39,26 @@ if __name__ == "__main__":
 
 	#RANDOM POLICY
 	#create a random policy
+
 	policy_Random = np.ones([FLenv.observation_space_n, FLenv.action_space_n]) / FLenv.action_space_n
 
-	V_randomPolicy, deltaIterations = FLenv.evaluate_policy(policy_Random, gamma)
+	start_random = time.time()
+	V_randomPolicy, deltaRandom = FLenv.evaluate_policy(policy_Random, gamma)
+	end_random=time.time()
 
 	print("Done with Random Policy Evaluation!")
+	print("time:" , end_random-start_random)
 	print("can check delta for when it convergences")
 	print(V_randomPolicy)
 	print("")
 
 
 	#VALUE ITERATION
-	V_s_ValueIteration, bestMoves = FLenv.value_iteration(gamma, iterations)
+	start_value = time.time()
+	V_s_ValueIteration, bestMoves, deltaValue = FLenv.value_iteration(gamma, iterations)
+	end_value = time.time()
 	print("Done with Value Iteration")
+	print("time:" , end_value-start_value)
 	print(V_s_ValueIteration)
 	print(bestMoves)
 	print("")
@@ -58,9 +66,11 @@ if __name__ == "__main__":
 
 
 	#POLICY ITERATION
-
+	start_policy = time.time()
 	best_policy, Vs_Policy_Iteration = FLenv.policy_iteration(gamma)
+	end_policy= time.time()
 	print("Done with Policy Iteration")
+	print("time:", end_policy-start_policy)
 	print(best_policy)
 	print("")
 	print(Vs_Policy_Iteration)

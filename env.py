@@ -102,12 +102,7 @@ class Environment(object):
 			self.pos = np.array(self.pos)+ [0,1]
 		else:
 			raise ValueError("Possible action values are: " + str(self.map_actions))
-		
 
-		#self.pos = np.array(self.pos) # make 1 array for upcoming comparison.
-		
-		# if no progres was made in the past movement, indicates agent 
-		# is positioned along the maps' boundaries (STOP)
 
 		#check if the agent moved oustide the grid
 		#if true then adjust the value to the saved starting position (didnt move)
@@ -132,11 +127,7 @@ class Environment(object):
 
 		s_prime, hit_grid = self.move(action) # move.
 		#self.out_grid = False
-		
-		#if hit_grid: # did the agent move at all from his starting pos?
-		#	reward = 0
-		#	done = False
-		#	self.out_grid = True
+
 
 		if s_prime == "F" or s_prime=="W":  # After moving, his he slipping on frozen ice?
 			if not hit_grid:
@@ -168,10 +159,6 @@ class Environment(object):
 			#return s_prime, reward, hit_grid # return here to stepside "self.render()" after agent loss.
 
 
-	#	elif s_prime == "W":  # Wreck found?
-	#		reward = 20
-			#done = False
-			#print("Wreck found!")
 		elif s_prime == "G":  # Goal reached?
 			#print("YOU WON!")
 			#done = True  # episode ended.
@@ -278,7 +265,7 @@ class Environment(object):
 			# 	print(V_s)
 			# 	print("")
 
-		return V_s, dictMoves
+		return V_s, dictMoves, delta_total
 
 	def policy_iteration(self, gamma):
 		#choose random policy to start with
@@ -307,8 +294,7 @@ class Environment(object):
 					else:
 
 						s_all_actions_values[act] += .95 * (reward + (gamma * Vs[s_prime[0][0], s_prime[0][1]]))
-				# list of delta value fro every state in an itteration
-				#delta=max(delta, np.abs(V_s[np.reshape(state, (4, 4))] - expected_val))
+
 				#the found best action based on the policy
 				best_action_found =np.argmax(s_all_actions_values) #returns the index of the highest value
 
