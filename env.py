@@ -86,14 +86,12 @@ class Environment(object):
 		
 		action = self.map_actions[action_n] #convert the integer to a letter
 
-		#at the present moment pos_mtx actually contains the s (current) location
-		#extract it
-		self.pos = np.argwhere(self.pos_mtx==True)
+		#make a copy to check it moved outside the grid
 		copy_s = np.copy(self.pos)
 		#prev_pos = np.copy(self.pos)
 
 		#converted action movements to coordinates as pos now is a coordinate
-		#updates pos to the s_prime coordinate based on the action executed
+		#update pos to s_prime
 		if action == "U": # [-1,0]
 			self.pos =  np.array(self.pos) + [-1,0]
 		elif action == "D": #[1,0]
@@ -117,10 +115,6 @@ class Environment(object):
 			self.pos=copy_s
 			hit_grid=True
 
-		#if np.all(prev_pos == self.pos):
-		#	stop = True
-
-		#pos_mtx = self.get_pos()
 		s_prime = self.lake_map[self.pos[0][0],self.pos[0][1]] #where s_prime is a letter from the map
 		# create state vector by flattening state map.
 		return s_prime, hit_grid
@@ -144,31 +138,33 @@ class Environment(object):
 		#	done = False
 		#	self.out_grid = True
 
-		if s_prime == "C":  # Did he move onto a crack?
+		if s_prime == "F":  # After moving, his he slipping on frozen ice?
+			if not hit_grid:
+				if random.uniform(0, 1) <= .05:
+					stop = False
+					while not stop:
+						s_prime, stop = self.move(action)
+						if s_prime == "C":
+							reward = -10
+							stop = True
+						elif s_prime == "G":
+							reward = 100
+							stop=True
+						else:
+							reward = 0
+				else:
+					reward = 0
+			else:
+				reward = 0
+
+		elif s_prime == "C":  # Did he move onto a crack?
 			#print("GAME OVER")
 			#done = True
 			reward = -10
 			#next_state = self.get_state()
 			#return s_prime, reward, hit_grid # return here to stepside "self.render()" after agent loss.
-		#elif s_prime == "F":  # After moving, his he slipping on frozen ice?
-		#	reward=0
-			#return s_prime, reward, hit_grid
 
-			#if random.uniform(0, 1) <= .05:
-			#	stop = False
-			#	while not stop:
-			#		next_state, stop = self.move(action)
-			#		if next_state == "C":
-			#			print("GAME OVER")
-			#			reward = -10
-			#			done = True
-			#		else:
-			#			print("slipping away...")
-			#			reward = 0
-			#			done = False
-			#else:
-			#	reward = 0
-			#	done = False
+
 		elif s_prime == "W":  # Wreck found?
 			reward = 20
 			#done = False
@@ -195,6 +191,8 @@ class Environment(object):
 		
 		self.pos_mtx = np.reshape(state, (4, 4)) #format the boolan state array as a matrix
 		#pos_mtx at this point contains the location of state s (NOT S_PRIME)
+		#extract the position and seve in pos
+		self.pos = np.argwhere(self.pos_mtx == True)
 
 		s_prime, reward, hit_grid = self.step(action) #here s_prime is coordinates
 		return s_prime, reward, hit_grid
