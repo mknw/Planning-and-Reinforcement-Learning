@@ -83,6 +83,7 @@ class Environment(object):
 		Returns state tile label (F, W, G or C)."""
 		
 		hit_grid = False
+		slip=False
 		
 		action = self.map_actions[action_n] #convert the integer to a letter
 
@@ -114,50 +115,21 @@ class Environment(object):
 		# create state vector by flattening state map.
 		return s_prime, hit_grid
 
-	def step(self, action):
-		""" When movement is performed, do the following:
-		- computes outcome (slipping, wreck, game over)
-		- assign 'done' and 'reward' for current step.
-		Returns:
-		- destination_state (type: int, range: 0-15 inc.);
-		- reward (type: int);
-		- "done" (end game).
-		"""
-		# Perform action, update position:
+	def step_normal(self, action):
 
-		s_prime, hit_grid = self.move(action) # move.
-		#self.out_grid = False
+		s_prime , hit_grid = self.move(action) # move.
 
+		action_probablity=0.95
 
-		if s_prime == "F" or s_prime=="W":  # After moving, his he slipping on frozen ice?
-			if not hit_grid:
-				if random.uniform(0, 1) <= .05:
-					stop = False
-					while not stop:
-						s_prime, stop = self.move(action)
-						if s_prime == "C":
-							reward = -10
-							stop = True
-						elif s_prime == "G":
-							reward = 100
-							stop=True
-						else:
-							reward = 0
-				else:
-					if s_prime == "W":
-						reward = 20
-					else:
-						reward=0
-			else:
-				reward = 0
-
-		elif s_prime == "C":  # Did he move onto a crack?
+		if s_prime == "C":  # Did he move onto a crack?
 			#print("GAME OVER")
 			#done = True
 			reward = -10
 			#next_state = self.get_state()
 			#return s_prime, reward, hit_grid # return here to stepside "self.render()" after agent loss.
 
+		elif s_prime == "W":
+			reward=20
 
 		elif s_prime == "G":  # Goal reached?
 			#print("YOU WON!")
@@ -166,35 +138,70 @@ class Environment(object):
 		else:
 			reward = 0
 
-		#else:
-
-		#	done = False
-		#	reward = 0
-
-		#self.render()
-		#next_state = self.get_state()
-		#but what is needed to return is the coordiantes not the letter (the coordiantes are saved internally)
 		s_prime_coordinates=self.pos
-		return s_prime_coordinates, reward, hit_grid
 
-	def sim_step(self, state, action):
+		return s_prime_coordinates, reward, hit_grid, action_probablity
+
+
+
+	def step_slide(self,action):
+		slide_probability = 1
+		s_prime, hit_grid = self.move(action)
+
+		if not hit_grid:
+			slide_probability = 0.05
+			stop = False
+			while not stop:
+				s_prime, stop = self.move(action)
+				if s_prime == "C":
+					reward = -10
+					stop = True
+				elif s_prime == "G":
+					reward = 100
+					stop=True
+				else:
+					reward = 0
+
+		else:
+			reward=0
+
+		s_prime_coordinates = self.pos
+
+		return s_prime_coordinates, reward, hit_grid, slide_probability
+
+
+
+	def sim_step_normal(self, state, action):
 		
 		self.pos_mtx = np.reshape(state, (4, 4)) #format the boolan state array as a matrix
 		#pos_mtx at this point contains the location of state s (NOT S_PRIME)
 		#extract the position and seve in pos
 		self.pos = np.argwhere(self.pos_mtx == True)
 
-		s_prime, reward, hit_grid = self.step(action) #here s_prime is coordinates
-		return s_prime, reward, hit_grid
+		s_prime, reward, hit_grid, action_probability = self.step_normal(action) #here s_prime is coordinates
+		return s_prime, reward, hit_grid, action_probability
+
+	def sim_step(self, state, action):
+		self.pos_mtx = np.reshape(state, (4, 4))  # format the boolan state array as a matrix
+		# pos_mtx at this point contains the location of state s (NOT S_PRIME)
+		# extract the position and seve in pos
+		self.pos = np.argwhere(self.pos_mtx == True)
+
+		s_prime, reward, hit_grid, action_probability = self.step_slide(action)  # here s_prime is coordinates
+		return s_prime, reward, hit_grid, action_probability
+
+
 
 	def calc_action_value(self, state, Vs, gamma):
 		action_outcome=np.zeros(4)
 		for act in range(self.size):
-			s_prime, reward, hit_grid =self.sim_step(state,act)
+			s_prime, reward, hit_grid, action_probablity =self.sim_step_normal(state,act)
+			s_prime_slip, reward_slip, hit_grid_slip, action_probability_slip = self.sim_step(state, act)
 			if hit_grid:
 				action_outcome[act] += reward+(gamma*Vs[s_prime[0][0],s_prime[0][1]])
 			else:
-				action_outcome[act] += 0.95*(reward+(gamma*Vs[s_prime[0][0],s_prime[0][1]]))
+				action_outcome[act] += action_probablity*(reward+(gamma*Vs[s_prime[0][0],s_prime[0][1]]))
+				action_outcome[act] += action_probability_slip*(reward_slip+(gamma*Vs[s_prime_slip[0][0],s_prime_slip[0][1]]))
 
 		return action_outcome
 
@@ -213,14 +220,19 @@ class Environment(object):
 				expected_val = 0
 				state = np.zeros((16)).astype(bool)  # convert to boolean array
 				state[s] = True
-				for act, act_probability in enumerate(policy[s]):  # select all possible actions in this state (act is an integer)
-					s_prime, reward, hit_grid = self.sim_step(state, act)  # pass a boolean array and an int
+				for act, act_probability in enumerate(policy[s]):# select all possible actions in this state (act is an integer)
+
+					s_prime, reward, hit_grid, action_probability = self.sim_step_normal(state, act)  # pass a boolean array and an int
+
+					s_prime_slip, reward_slip, hit_grid_slip, action_probability_slip = self.sim_step(state,act)
+
 
 					if hit_grid:
 						expected_val += (act_probability * (reward + (gamma * V_s[s_prime[0][0], s_prime[0][1]])))
 					else:
+						expected_val += (act_probability * action_probability * (reward + (gamma * V_s[s_prime[0][0], s_prime[0][1]])))
+						expected_val += (act_probability * action_probability_slip * (reward_slip + (gamma * V_s[s_prime_slip[0][0], s_prime_slip[0][1]])))
 
-						expected_val += (act_probability * .95 * (reward + (gamma * V_s[s_prime[0][0], s_prime[0][1]])))
 				# list of delta value fro every state in an itteration
 				#delta=max(delta, np.abs(V_s[np.reshape(state, (4, 4))] - expected_val))
 				deltaIteration.append(np.abs(V_s[np.reshape(state, (4, 4))] - expected_val))
@@ -287,13 +299,15 @@ class Environment(object):
 				state = np.zeros((16)).astype(bool)  # boolean array
 				state[s] = True
 				for act, act_probability in enumerate(policy[s]):  # select all possible actions in this state (act is an integer)
-					s_prime, reward, hit_grid = self.sim_step(state, act)  # pass a boolean array and an int
+					s_prime, reward, hit_grid, action_probability = self.sim_step_normal(state, act)  # pass a boolean array and an int
+					s_prime_slip, reward_slip, hit_grid_slip, action_probability_slip = self.sim_step(state, act)
 
 					if hit_grid:
 						s_all_actions_values[act] += reward + (gamma * Vs[s_prime[0][0], s_prime[0][1]])
 					else:
 
-						s_all_actions_values[act] += .95 * (reward + (gamma * Vs[s_prime[0][0], s_prime[0][1]]))
+						s_all_actions_values[act] += action_probability * (reward + (gamma * Vs[s_prime[0][0], s_prime[0][1]]))
+						s_all_actions_values[act] += action_probability_slip* (reward_slip + (gamma * Vs[s_prime_slip[0][0], s_prime_slip[0][1]]))
 
 				#the found best action based on the policy
 				best_action_found =np.argmax(s_all_actions_values) #returns the index of the highest value
@@ -349,7 +363,7 @@ def save_ts_pickle(filepath, var):
 	pass
 
 if __name__ == "__main__":
-    env = Environment()
-    import ipdb;
+	env = Environment()
+	import ipdb;
 
-    ipdb.set_trace()
+	ipdb.set_trace()
