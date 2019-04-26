@@ -83,8 +83,6 @@ class Environment(object):
 		Returns state tile label (F, W, G or C)."""
 		
 		hit_grid = False
-		slip=False
-		
 		action = self.map_actions[action_n] #convert the integer to a letter
 
 		#make a copy to check it moved outside the grid
@@ -181,7 +179,7 @@ class Environment(object):
 		s_prime, reward, hit_grid, action_probability = self.step_normal(action) #here s_prime is coordinates
 		return s_prime, reward, hit_grid, action_probability
 
-	def sim_step(self, state, action):
+	def sim_step_slide(self, state, action):
 		self.pos_mtx = np.reshape(state, (4, 4))  # format the boolan state array as a matrix
 		# pos_mtx at this point contains the location of state s (NOT S_PRIME)
 		# extract the position and seve in pos
@@ -196,7 +194,7 @@ class Environment(object):
 		action_outcome=np.zeros(4)
 		for act in range(self.size):
 			s_prime, reward, hit_grid, action_probablity =self.sim_step_normal(state,act)
-			s_prime_slip, reward_slip, hit_grid_slip, action_probability_slip = self.sim_step(state, act)
+			s_prime_slip, reward_slip, hit_grid_slip, action_probability_slip = self.sim_step_slide(state, act)
 			if hit_grid:
 				action_outcome[act] += reward+(gamma*Vs[s_prime[0][0],s_prime[0][1]])
 			else:
@@ -224,7 +222,7 @@ class Environment(object):
 
 					s_prime, reward, hit_grid, action_probability = self.sim_step_normal(state, act)  # pass a boolean array and an int
 
-					s_prime_slip, reward_slip, hit_grid_slip, action_probability_slip = self.sim_step(state,act)
+					s_prime_slip, reward_slip, hit_grid_slip, action_probability_slip = self.sim_step_slide(state,act)
 
 
 					if hit_grid:
@@ -300,7 +298,7 @@ class Environment(object):
 				state[s] = True
 				for act, act_probability in enumerate(policy[s]):  # select all possible actions in this state (act is an integer)
 					s_prime, reward, hit_grid, action_probability = self.sim_step_normal(state, act)  # pass a boolean array and an int
-					s_prime_slip, reward_slip, hit_grid_slip, action_probability_slip = self.sim_step(state, act)
+					s_prime_slip, reward_slip, hit_grid_slip, action_probability_slip = self.sim_step_slide(state, act)
 
 					if hit_grid:
 						s_all_actions_values[act] += reward + (gamma * Vs[s_prime[0][0], s_prime[0][1]])
