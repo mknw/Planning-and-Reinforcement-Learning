@@ -203,16 +203,18 @@ class Environment(object):
 
 		return action_outcome
 
+
+
 	def evaluate_policy(self, policy, gamma):
 		V_s = np.zeros((self.size, self.size))
-		#threshold=0.0001
+		threshold=0.0001
 		deltaAll=[]
-		iterations=1000
-	#	delta=0
+		iterations=0
 
-		#while True:
-		for i in range(iterations):
+		while True:
+	#	for i in range(iterations):
 			deltaIteration = []
+			delta=0
 			copyV_s = np.copy(V_s)
 			for s in self.states:  # select a state s (s is an integer)
 				expected_val = 0
@@ -232,11 +234,16 @@ class Environment(object):
 						expected_val += (act_probability * action_probability_slip * (reward_slip + (gamma * V_s[s_prime_slip[0][0], s_prime_slip[0][1]])))
 
 				# list of delta value fro every state in an itteration
-				#delta=max(delta, np.abs(V_s[np.reshape(state, (4, 4))] - expected_val))
+				delta=max(delta, np.abs(V_s[np.reshape(state, (4, 4))] - expected_val))
 				deltaIteration.append(np.abs(V_s[np.reshape(state, (4, 4))] - expected_val))
 				V_s[np.reshape(state, (4, 4))] = expected_val
 
 			deltaAll.append(deltaIteration)
+			iterations +=1
+
+
+			if delta <= threshold:
+				return V_s, deltaAll, iterations
 			# if i in [0,1,2,9, 99, iterations-1]:
 			# 	print("Iteration {}".format(iterations + 1))
 			# 	print(V_s)
@@ -244,16 +251,21 @@ class Environment(object):
 
 		#	if delta<threshold:
 			#	break
-		return V_s, deltaAll
+
 
 	def value_iteration(self, gamma, iterations):
 		V_s = np.zeros((self.size, self.size))
+		delta=0
+		threshold = 0.0001
+		iterations=0
 		dictMoves={}
 		delta_total=[]
 		for i in self.states:
 			dictMoves[i] = 0
 
-		for i in range(iterations):
+
+		while True:
+		#for i in range(iterations):
 			delta_valueit = []
 			for s in self.states:  # s is an integer
 				state = np.zeros((16)).astype(bool)  # boolean array
@@ -266,16 +278,21 @@ class Environment(object):
 				dictMoves[s] = action_letter
 
 				# update Vs
+				delta = max(delta, np.abs(V_s[np.reshape(state, (4, 4))] - best_action))
 				delta_valueit.append(np.abs(V_s[np.reshape(state, (4, 4))] - best_action))
 				V_s[np.reshape(state, (4, 4))] = best_action
 			delta_total.append(delta_valueit)
+			iterations+=1
+
+			if delta >= threshold:
+				return V_s, dictMoves, delta_total, iterations
 
 			# if i in [0, 1, 2, 9, 99, iterations - 1]:
 			# 	print("Iteration {}".format(i + 1))
 			# 	print(V_s)
 			# 	print("")
 
-		return V_s, dictMoves, delta_total
+
 
 	def policy_iteration(self, gamma):
 		#choose random policy to start with
@@ -303,7 +320,6 @@ class Environment(object):
 					if hit_grid:
 						s_all_actions_values[act] += reward + (gamma * Vs[s_prime[0][0], s_prime[0][1]])
 					else:
-
 						s_all_actions_values[act] += action_probability * (reward + (gamma * Vs[s_prime[0][0], s_prime[0][1]]))
 						s_all_actions_values[act] += action_probability_slip* (reward_slip + (gamma * Vs[s_prime_slip[0][0], s_prime_slip[0][1]]))
 
