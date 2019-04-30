@@ -24,6 +24,7 @@ import time
 import random
 import env
 from env import Environment, save_ts_pickle
+from pulp import *
 
 
 
@@ -78,5 +79,108 @@ if __name__ == "__main__":
 	print(Vs_Policy_Iteration)
 	print(iterationsRun)
 
-	#Linear Programming
 
+	#LINEAR PROGRAMMIN SOLUTION
+	#define problem
+	problem = LpProblem("MDP", LpMinimize)
+
+	#set variable
+	stateValue=LpVariable.dicts("StateValue", list(range(16)))
+
+	ValuesAction = FLenv.ValueEveryAction(gamma)
+
+	#constraints
+	c01 = stateValue[0] >= ValuesAction[0][0]
+	c02 = stateValue[0] >= ValuesAction[0][1]
+	c03 = stateValue[0] >= ValuesAction[0][2]
+	c04 = stateValue[0] >= ValuesAction[0][3]
+	c10 = stateValue[1] >= ValuesAction[1][0]
+	c11 =  stateValue[1] >= ValuesAction[1][1]
+	c12 = stateValue[1] >= ValuesAction[1][2]
+	c13 = stateValue[1] >= ValuesAction[1][3]
+	c20 = stateValue[2] >= ValuesAction[2][0]
+	c21 = stateValue[2] >= ValuesAction[2][1]
+	c22 =  stateValue[2] >= ValuesAction[2][2]
+	c23 =  stateValue[2] >= ValuesAction[2][3]
+	c40 = stateValue[4] >= ValuesAction[4][0]
+	c41 = stateValue[4] >= ValuesAction[4][1]
+	c42 = stateValue[4] >= ValuesAction[4][2]
+	c43 = stateValue[4] >= ValuesAction[4][3]
+	c60 = stateValue[6] >= ValuesAction[6][0]
+	c61 = stateValue[6] >= ValuesAction[6][1]
+	c62 = stateValue[6] >= ValuesAction[6][2]
+	c63 = stateValue[6] >= ValuesAction[6][3]
+	c80 = stateValue[8] >= ValuesAction[8][0]
+	c81 = stateValue[8] >= ValuesAction[8][1]
+	c82 = stateValue[8] >= ValuesAction[8][2]
+	c83 = stateValue[8] >= ValuesAction[8][3]
+	c90 = stateValue[9] >= ValuesAction[9][0]
+	c91 = stateValue[9] >= ValuesAction[9][1]
+	c92 = stateValue[9] >= ValuesAction[9][2]
+	c93 = stateValue[9] >= ValuesAction[9][3]
+	c100 = stateValue[10] >= ValuesAction[10][0]
+	c101 = stateValue[10] >= ValuesAction[10][1]
+	c102 = stateValue[10] >= ValuesAction[10][2]
+	c103 = stateValue[10] >= ValuesAction[10][3]
+	c120 = stateValue[12] >= ValuesAction[12][0]
+	c121 = stateValue[12] >= ValuesAction[12][1]
+	c122 = stateValue[12] >= ValuesAction[12][2]
+	c123 = stateValue[12] >= ValuesAction[12][3]
+
+	# define objective function
+	problem += stateValue[0] + stateValue[1] + stateValue[2] + stateValue[4] + stateValue[6] + stateValue[8] + stateValue[9] + stateValue[10] + stateValue[12]
+
+
+#add contraints to the problem
+	problem += c01
+	problem += c02
+	problem += c03
+	problem += c04
+	problem += c10
+	problem += c11
+	problem += c12
+	problem += c13
+	problem += c20
+	problem += c21
+	problem += c22
+	problem += c23
+	problem += c40
+	problem += c41
+	problem += c42
+	problem += c43
+	problem += c60
+	problem += c61
+	problem += c62
+	problem += c63
+	problem += c80
+	problem += c81
+	problem += c82
+	problem += c83
+	problem += c90
+	problem += c91
+	problem += c92
+	problem += c93
+	problem += c100
+	problem += c101
+	problem += c102
+	problem += c103
+	problem += c120
+	problem += c121
+	problem += c122
+	problem += c123
+
+
+	#solving
+	start_LS = time.time()
+	problem.solve()
+	end_LS=time.time()
+
+	#solution
+	print("")
+	print("Solution for Linear Programming")
+	print("")
+	for i in range(16):
+		print(f"State {i}: {stateValue[i].varValue}")
+
+	print("")
+	print("time:", end_LS-start_LS)

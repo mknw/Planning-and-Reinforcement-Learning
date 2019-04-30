@@ -16,7 +16,7 @@ class Environment(object):
 	
 	def __init__(self, size=4, start_coords=(3, 0), wreck_coords=(2,2), goal_coords=(0,3),
 				crack_coords=[(1,1), (1,3), (2,3), (3,1), (3,2), (3,3)],
-				 non_terminal_states=[12, 1, 2, 4, 6, 8, 9, 10, 0],
+				 non_terminal_states=[0, 1, 2, 4, 6, 8, 9, 10, 12],
 				 actions=[i for i in range(4)], threshold=0.00001):
 		self.size = size
 		
@@ -204,6 +204,36 @@ class Environment(object):
 				action_outcome[act] += action_probability_slip*(reward_slip+(gamma*Vs[s_prime_slip[0][0],s_prime_slip[0][1]]))
 
 		return action_outcome
+
+	def ValueEveryAction(self, gamma):  # V is a dict
+		Vs = np.zeros((4, 4))
+
+		Values = np.zeros((self.observation_space_n, self.size))
+		delta = 0
+
+		while True:
+			for s in self.states:
+				state = np.zeros((16)).astype(bool)  # convert to boolean array
+				state[s] = True
+				best_value = 0
+				for act in range(self.size):
+					value = 0
+					s_prime, reward, hit_grid, action_probablity = self.sim_step_normal(state, act)
+					s_prime_slip, reward_slip, hit_grid_slip, action_probability_slip = self.sim_step_slide(state, act)
+					if hit_grid:
+						value += reward + (gamma * Vs[s_prime[0][0], s_prime[0][1]])
+					else:
+						value += action_probablity * (reward + (gamma * Vs[s_prime[0][0], s_prime[0][1]]))
+						value += action_probability_slip * (reward_slip + (gamma * Vs[s_prime_slip[0][0], s_prime_slip[0][1]]))
+
+					if value > best_value:
+						best_value = value
+
+					Values[s][act] = value
+				delta = max(delta, np.abs(Vs[np.reshape(state, (4, 4))] - best_value))
+				Vs[np.reshape(state, (4, 4))] = best_value
+			if delta > self.threshold:
+				return Values
 
 
 
