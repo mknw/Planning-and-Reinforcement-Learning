@@ -35,7 +35,6 @@ if __name__ == "__main__":
 
 
 	gamma = .9
-	iterations = 1000
 
 	#RANDOM POLICY
 	#create a random policy
@@ -56,7 +55,7 @@ if __name__ == "__main__":
 
 	#VALUE ITERATION
 	start_value = time.time()
-	V_s_ValueIteration, bestMoves, deltaValue, iterationResult = FLenv.value_iteration(gamma, iterations)
+	V_s_ValueIteration, bestMoves, deltaValue, iterationResult = FLenv.value_iteration(gamma)
 	end_value = time.time()
 	print("Done with Value Iteration")
 	print("time:" , end_value-start_value)
@@ -68,14 +67,16 @@ if __name__ == "__main__":
 
 
 	#POLICY ITERATION
-	# start_policy = time.time()
-	# best_policy, Vs_Policy_Iteration = FLenv.policy_iteration(gamma)
-	# end_policy= time.time()
-	# print("Done with Policy Iteration")
-	# print("time:", end_policy-start_policy)
-	# print(best_policy)
-	# print("")
-	# print(Vs_Policy_Iteration)
+	start_policy = time.time()
+	best_policy, Vs_Policy_Iteration, iterationsRun = FLenv.policy_iteration(gamma)
+	end_policy= time.time()
+
+	print("Done with Policy Iteration")
+	print("time:", end_policy-start_policy)
+	print(best_policy)
+	print("")
+	print(Vs_Policy_Iteration)
+	print(iterationsRun)
 
 	#Linear Programming
 

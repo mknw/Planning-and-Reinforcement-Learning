@@ -17,7 +17,7 @@ class Environment(object):
 	def __init__(self, size=4, start_coords=(3, 0), wreck_coords=(2,2), goal_coords=(0,3),
 				crack_coords=[(1,1), (1,3), (2,3), (3,1), (3,2), (3,3)],
 				 non_terminal_states=[12, 1, 2, 4, 6, 8, 9, 10, 0],
-				 actions=[i for i in range(4)]):
+				 actions=[i for i in range(4)], threshold=0.00001):
 		self.size = size
 		
 		self.start_coords = start_coords
@@ -26,6 +26,8 @@ class Environment(object):
 		self.crack_coords = crack_coords
 		self.states=non_terminal_states
 		self.actions=actions
+		self.threshold=threshold
+
 
 		self.lake_map = np.zeros((size, size)).astype(str)
 		self.state_space = ["S", "F", "C", "W", "G"] # start, frozen, crack, wreck, goal
@@ -207,15 +209,12 @@ class Environment(object):
 
 	def evaluate_policy(self, policy, gamma):
 		V_s = np.zeros((self.size, self.size))
-		threshold=0.0001
 		deltaAll=[]
 		iterations=0
 
 		while True:
-	#	for i in range(iterations):
 			deltaIteration = []
 			delta=0
-			copyV_s = np.copy(V_s)
 			for s in self.states:  # select a state s (s is an integer)
 				expected_val = 0
 				state = np.zeros((16)).astype(bool)  # convert to boolean array
@@ -242,21 +241,13 @@ class Environment(object):
 			iterations +=1
 
 
-			if delta <= threshold:
+			if delta <= self.threshold:
 				return V_s, deltaAll, iterations
-			# if i in [0,1,2,9, 99, iterations-1]:
-			# 	print("Iteration {}".format(iterations + 1))
-			# 	print(V_s)
-			# 	print("")
-
-		#	if delta<threshold:
-			#	break
 
 
-	def value_iteration(self, gamma, iterations):
+	def value_iteration(self, gamma):
 		V_s = np.zeros((self.size, self.size))
 		delta=0
-		threshold = 0.0001
 		iterations=0
 		dictMoves={}
 		delta_total=[]
@@ -265,7 +256,6 @@ class Environment(object):
 
 
 		while True:
-		#for i in range(iterations):
 			delta_valueit = []
 			for s in self.states:  # s is an integer
 				state = np.zeros((16)).astype(bool)  # boolean array
@@ -284,23 +274,24 @@ class Environment(object):
 			delta_total.append(delta_valueit)
 			iterations+=1
 
-			if delta >= threshold:
+			if delta >= self.threshold:
 				return V_s, dictMoves, delta_total, iterations
 
-			# if i in [0, 1, 2, 9, 99, iterations - 1]:
-			# 	print("Iteration {}".format(i + 1))
-			# 	print(V_s)
-			# 	print("")
 
 
 
 	def policy_iteration(self, gamma):
 		#choose random policy to start with
 		policy = np.ones([self.observation_space_n, self.size]) / 5
-		#for i in iterations:
+		iterationCount = 0
+		count=0
+		dictPolicy={}
+		for i in range(16):
+			dictPolicy[i]=0
+
 		while True:
 			#evaluate the policy
-			Vs, deltas =self.evaluate_policy(policy, gamma)
+			Vs, deltas, iterationsExecuted =self.evaluate_policy(policy, gamma)
 
 
 			#policy improvement
@@ -335,8 +326,19 @@ class Environment(object):
 				else:
 					policy[s] = np.eye(self.action_space_n)[best_action_found]
 
+			iterationCount +=1
+
 			if policy_stable:
-				return 	policy, Vs
+				for i in policy:
+					n=0
+					for k in i:
+						if k==1:
+							dictPolicy[count]=self.map_actions[n]
+						else:
+							n+=1
+					count+=1
+
+				return 	dictPolicy, Vs, iterationCount
 
 
 
