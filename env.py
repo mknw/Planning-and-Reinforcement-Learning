@@ -310,7 +310,7 @@ class Environment(object):
 
 
 
-	def policy_iteration(self, gamma):
+	def policy_iteration(self, gamma, method="howard"):
 		#choose random policy to start with
 		policy = np.ones([self.observation_space_n, self.size]) / 5
 		iterationCount = 0
@@ -324,9 +324,17 @@ class Environment(object):
 			Vs, deltas, iterationsExecuted =self.evaluate_policy(policy, gamma)
 
 
+			# Implementing simple policy iteration
+			if method not in ["howard", "simple"]:
+				raise ValueError("Method should be 'howard' or 'simple'")
+			elif method == "howard":
+				states = self.states
+			elif method == "simple":
+				states = [np.random.choice(self.states)]
+
 			#policy improvement
 			policy_stable = True
-			for s in self.states:  # s is an integer
+			for s in states:  # s is an integer
 				#select best action under the current policy
 				best_action_policy=np.argmax(policy[s])
 
