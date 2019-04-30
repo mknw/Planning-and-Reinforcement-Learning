@@ -87,10 +87,10 @@ if __name__ == "__main__":
 
 	print("Done with Simple Policy Iteration")
 	print("time:", end_policy-start_policy)
-	print(best_policy)
+	print("best policy:\n",best_policy)
 	print("")
-	print(Vs_Policy_Iteration)
-	print(iterationsRun)
+	print("Vs_Policy_Iteration\n",Vs_Policy_Iteration)
+	print("iterationsRun\n",iterationsRun)
 
 	#Linear Programming
 

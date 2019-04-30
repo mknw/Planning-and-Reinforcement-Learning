@@ -293,14 +293,16 @@ class Environment(object):
 			#evaluate the policy
 			Vs, deltas, iterationsExecuted =self.evaluate_policy(policy, gamma)
 
-
 			# Implementing simple policy iteration
 			if method not in ["howard", "simple"]:
 				raise ValueError("Method should be 'howard' or 'simple'")
 			elif method == "howard":
 				states = self.states
 			elif method == "simple":
-				states = [np.random.choice(self.states)]
+				states = [np.random.choice(self.states[np.array(policy) == "0"])] # only IMPROVABLE STATES
+			print(states)
+			print(policy)
+			print(np.array(policy) == "0")
 
 			#policy improvement
 			policy_stable = True
