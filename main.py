@@ -66,12 +66,26 @@ if __name__ == "__main__":
 
 
 
-	#POLICY ITERATION
+	#POLICY ITERATION (HOWARD)
 	start_policy = time.time()
-	best_policy, Vs_Policy_Iteration, iterationsRun = FLenv.policy_iteration(gamma)
+	best_policy, Vs_Policy_Iteration, iterationsRun = FLenv.policy_iteration(gamma, method="howard")
 	end_policy= time.time()
 
-	print("Done with Policy Iteration")
+	print("Done with Howard Policy Iteration")
+	print("time:", end_policy-start_policy)
+	print(best_policy)
+	print("")
+	print(Vs_Policy_Iteration)
+	print(iterationsRun)
+
+
+
+	#POLICY ITERATION (SIMPLE)
+	start_policy = time.time()
+	best_policy, Vs_Policy_Iteration, iterationsRun = FLenv.policy_iteration(gamma, method="simple")
+	end_policy= time.time()
+
+	print("Done with Simple Policy Iteration")
 	print("time:", end_policy-start_policy)
 	print(best_policy)
 	print("")
