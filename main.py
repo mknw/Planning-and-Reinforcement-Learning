@@ -83,6 +83,7 @@ def policy_iter(environment, epochs=1000):
 		if i % 100 == 0:
 			print("Epoch: ", i, ".")
 			print(V_s)
+			print("MEAN:  ",np.mean(V_s))
 	return (log, deltaAll, reward_plot)
 
 
@@ -91,9 +92,9 @@ def value_iter(environment, epochs=1000):
 	delta_total = list()
 	Vs = np.zeros( (environment.size, environment.size) )
 	states = [12, 1, 2, 4, 6, 8, 9, 10, 0] #non terminal states
-	dict={}
+	dict_={}
 	for i in states:
-		dict[i]=0
+		dict_[i]=0
 
 	#VALUE ITERATION
 	for k in range(epochs):
@@ -116,7 +117,7 @@ def value_iter(environment, epochs=1000):
 			action_letter = environment.map_actions[index_action]
 			#index_action=np.where(all_actions_for_s==best_action)
 			#record best action for a certain state
-			dict[s]=action_letter
+			dict_[s]=action_letter
 
 			#update Vs
 			delta_valueit.append(np.abs(Vs[np.reshape(state, (4, 4))] - best_action))
@@ -126,12 +127,13 @@ def value_iter(environment, epochs=1000):
 		if k in [0, 1, 2, 9, 99, epochs- 1]:
 			print("Iteration {}".format(k + 1))
 			print(Vs)
-			print("")
+			print("MEAN:     ",np.mean(Vs))
+
+	print("Done with Value Iteration")
+	print(dict_)
 
 	return (Vs, log)
 
-	print("Done with Value Iteration")
-	print(dict)
 
 if __name__ == "__main__":
 	
