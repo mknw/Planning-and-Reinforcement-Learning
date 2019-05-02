@@ -35,7 +35,9 @@ def policy_iter(environment, epochs=1000):
 	gamma = .9
 	
 	########## HEAD
-	
+	reward_plot = {}
+	reward_plot["single"] = []
+	reward_plot["cumulative"] = []
 	log = []
 
 	deltaAll = list()
@@ -50,7 +52,9 @@ def policy_iter(environment, epochs=1000):
 			stt_val = 0
 			state = np.zeros((16)).astype(bool)
 			state[s] = True
+			temp = []
 			for act in actions:
+
 	
 				next_state, reward, done = environment.sim_step(state, act)
 	
@@ -63,6 +67,11 @@ def policy_iter(environment, epochs=1000):
 					penalties += 1
 				tot_reward += reward
 
+				temp.append(reward)
+
+				reward_plot["single"].append(reward)
+				reward_plot["cumulative"].append(tot_reward)
+
 			# list of delta value from every state in an iteration
 			deltaIteration.append( np.abs( V_s[np.reshape(state, (4, 4))] - stt_val))
 			# assign state value over all actions: 
@@ -72,9 +81,9 @@ def policy_iter(environment, epochs=1000):
 		log.append([i, penalties, tot_reward, V_s])
 
 		if i % 100 == 0:
-			print("Epoch: {i}.")
+			print("Epoch: ", i, ".")
 			print(V_s)
-	return (log, deltaAll)
+	return (log, deltaAll, reward_plot)
 
 
 def value_iter(environment, epochs=1000):
@@ -137,7 +146,7 @@ if __name__ == "__main__":
 	FLenv = Environment()
 	# save timestamped log file
 
-	log, deltaAll = policy_iter(FLenv, epochs=1000)
+	log, deltaAll, plot_data = policy_iter(FLenv, epochs=1000)
 
 	save_path = os.path.join(save_dir, "pol_iter_log")
 	save_ts_pickle(save_path, log)
