@@ -195,7 +195,7 @@ if __name__ == "__main__":
 	print("Solution for Linear Programming")
 	print("")
 	for i in range(16):
-		print("State {",i,"}: {stateValue[i].varValue}")
+		print(f"State {i}: {stateValue[i].varValue}")
 
 	print("")
 	print("time:", end_LS-start_LS)
