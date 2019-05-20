@@ -103,6 +103,43 @@ class Environment(object):
 		current_state = self.lake_map[self.pos_mtx][0]
 		# create state vector by flattening state map.
 		return current_state, stop
+	
+
+	def alt_move(self, action_n):
+		"""Performs actual movement.
+		Takes action_n (0, 1, 2 or 3);
+		Updates self.pos_mtx (state matrix);
+		Returns state tile label (F, W, G or C)."""
+
+		hit_grid = False
+		action = self.map_actions[action_n]  # convert the integer to a letter
+
+		# make a copy to check it moved outside the grid
+		copy_s = np.copy(self.pos)
+		# prev_pos = np.copy(self.pos)
+
+		# converted action movements to coordinates as pos now is a coordinate
+		# update pos to s_prime
+		if action == "U":  # [-1,0]
+			self.pos = np.array(self.pos) + [-1, 0]
+		elif action == "D":  # [1,0]
+			self.pos = np.array(self.pos) + [1, 0]
+		elif action == "L":  # [0,-1]
+			self.pos = np.array(self.pos) + [0, -1]
+		elif action == "R":  # [0,1]
+			self.pos = np.array(self.pos) + [0, 1]
+		else:
+			raise ValueError("Possible action values are: " + str(self.map_actions))
+
+		# check if the agent moved oustide the grid
+		# if true then adjust the value to the saved starting position (didnt move)
+		if -1 in self.pos or 4 in self.pos:
+			self.pos = copy_s
+			hit_grid = True
+
+		s_prime = self.lake_map[self.pos[0][0], self.pos[0][1]]  # where s_prime is a letter from the map
+		# create state vector by flattening state map.
+		return s_prime, hit_grid
 
 	def step(self, action):
 		""" When movement is performed, do the following:
