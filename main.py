@@ -27,7 +27,7 @@ if __name__ == "__main__":
 	q_learning = learning('Q-ET')
 
 
-	q_learning( alpha = .1, gamma = .6, epsilon = .1) # here alpha gamma and epsilon can be overwritten
+	q_learning(alpha = .1, gamma = .6, epsilon = .1) # here alpha gamma and epsilon can be overwritten
 
 
 	import ipdb; ipdb.set_trace()
