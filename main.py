@@ -14,13 +14,12 @@ from learning import learning # sorry about that
 
 if __name__ == "__main__":
 
-	# can take 'Q', 'Q-ER', or 'SARSA'
+	# can take 'Q', 'Q-ER', 'Q-ET' or 'SARSA'
 	q_learning = learning('SARSA')
 
 
-	q_learning( alpha = .1, gamma = .6, epsilon = .1) # here alpha gamma and epsilon can be overwritten
+	q_learning(alpha = .1, gamma = .6, epsilon = .1) # here alpha gamma and epsilon can be overwritten
 
 
 	import ipdb; ipdb.set_trace()
-
 
