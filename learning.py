@@ -53,7 +53,7 @@ def q_learning(alpha, gamma, epsilon):
 
 		if i % 100 == 0:
 			print("Episode: {i}.")
-	save_ts_pickle('log', log)
+	save_ts_pickle('Qlog', log)
 	save_ts_pickle('Qtable', Q)
 	
 
@@ -144,8 +144,8 @@ def q_learning_er(alpha, gamma, epsilon):
 		if i % 100 == 0:
 			print("Episode: {i}.")
 
-	save_ts_pickle('log', log)
-	save_ts_pickle('Qtable', Q)
+	save_ts_pickle('ER-log', log)
+	save_ts_pickle('ER-Qtable', Q)
 
 
 def sarsa(alpha, gamma, epsilon):
@@ -199,8 +199,8 @@ def sarsa(alpha, gamma, epsilon):
 
 		if i % 100 == 0:
 			print("Episode: {i}.")
-	save_ts_pickle('log', log)
-	save_ts_pickle('Qtable', Q)
+	save_ts_pickle('SARSA-log', log)
+	save_ts_pickle('SARSA-Qtable', Q)
 
 
 
