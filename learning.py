@@ -59,6 +59,7 @@ def q_learning(alpha, gamma, epsilon):
 
 
 def q_learning_er(alpha, gamma, epsilon):
+	FLenv = Environment()
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 	episodes = 1000
 	log = []
