@@ -151,8 +151,57 @@ def q_learning_er(alpha, gamma, epsilon):
 def sarsa(alpha, gamma, epsilon):
 	
 	## define sarsa
+	FLenv = Environment()
 
-	pass
+	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
+
+	alpha, gamma, epsilon = .1, .6, .1
+	episodes = 1000
+
+	log = []
+
+	for i in range(episodes):
+		FLenv.reset()
+		epochs, penalties, tot_reward = 0, 0, 0
+		done = False
+		print("episode: " + str(i))
+		while not done:
+
+			if random.uniform(0, 1) < epsilon or i<=250: # change to: i<=episodes to turn on random policy.
+				action = FLenv.sample_action()
+				# Current State fetched from Env object as 16values long 1-hot vector.
+				C_S = FLenv.pos_mtx.flatten().astype(bool)
+			else:
+				# C(urrent)S(tate) as 1-hot, 16 vals-long vector (same thing).
+				C_S = FLenv.pos_mtx.flatten().astype(bool)
+				action = np.argmax(Q[C_S])
+			
+			# take action A, observe R, S_prime
+			next_state, reward, done = FLenv.step(action)
+
+			if reward == -10:
+				penalties += 1
+			tot_reward += reward
+
+			# SARSA
+			V = Q[C_S, action] # save Q(S, A)
+			A_prime = np.max(Q[next_state]) # choose A' from S' using policy after Q
+			new_V = V + alpha * (reward + (gamma * A_prime) - V)
+			Q[C_S, action] = new_V
+			
+
+			state = next_state
+			action = A_prime
+			# append to log
+			epochs += 1
+
+		log.append([i, epochs, penalties, tot_reward])
+
+		if i % 100 == 0:
+			print("Episode: {i}.")
+	save_ts_pickle('log', log)
+	save_ts_pickle('Qtable', Q)
+
 
 
 
@@ -170,5 +219,4 @@ def learning(method):
 		return q_learning_er
 
 	if method == "SARSA":
-		print('fuck you.')
-		pass
+		return sarsa
