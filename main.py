@@ -77,7 +77,7 @@ if __name__ == "__main__":
 		if i % 100 == 0:
 			print("Episode: {i}.")
 	
-
+	import ipdb; ipdb.set_trace()
 
 	save_ts_pickle('log', log)
 	save_ts_pickle('Qtable', Q)
