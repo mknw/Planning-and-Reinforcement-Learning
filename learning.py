@@ -220,6 +220,8 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .1):
 
 			if i % 100 == 0:
 				print("Episode: {i}.")
+	save_ts_pickle('Q-ET-log', log)
+	save_ts_pickle('Q-ET-Qtable', Q)
 
 
 def sarsa(alpha, gamma, epsilon):
