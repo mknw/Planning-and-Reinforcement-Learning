@@ -12,7 +12,7 @@ def q_learning(alpha = .1, gamma = .6, epsilon = .1):
 
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 
-	episodes = 500
+	episodes = 1000
 
 	log = []
 	plot_data = []
@@ -55,8 +55,8 @@ def q_learning(alpha = .1, gamma = .6, epsilon = .1):
 
 		if i % 100 == 0:
 			print("Episode: {i}.")
-	#save_ts_pickle('Qlog', log)
-	#save_ts_pickle('Qtable', Q)
+	save_ts_pickle('Qlog', log)
+	save_ts_pickle('Qtable', Q)
 	return plot_data
 
 
@@ -74,7 +74,7 @@ def q_boltzmann(taus = [0.3], alpha = .1, gamma = .6, epsilon = .1):
 
 	if isinstance(taus, list):
 		if len(taus) > 1:
-			anneal_point = episodes / len(tau)	
+			anneal_point = episodes / len(taus)
 		else:
 			tau = taus[0]
 			anneal_point = False
@@ -147,7 +147,7 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 
 
-	episodes = 500
+	episodes = 1000
 
 	log = []
 
@@ -230,9 +230,9 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 
 		if i % 100 == 0:
 			print("Episode: {i}.")
+	save_ts_pickle('ER-log', log)
+	save_ts_pickle('ER-Qtable', Q)
 	return all_rewards
-	#save_ts_pickle('ER-log', log)
-	#save_ts_pickle('ER-Qtable', Q)
 
 
 def q_learning_et(alpha = .1, gamma = .6, epsilon = .1, lmbda = 0.3):# Initialize decay rate λ
@@ -249,7 +249,7 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .1, lmbda = 0.3):# Initializ
 
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 
-	episodes = 500
+	episodes = 1000
 
 	log = []
 
@@ -311,9 +311,9 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .1, lmbda = 0.3):# Initializ
 		if i % 100 == 0:
 			print("Episode: {i}.")
 
+	save_ts_pickle('Q-ET-log', log)
+	save_ts_pickle('Q-ET-Qtable', Q)
 	return all_reward
-	#save_ts_pickle('Q-ET-log', log)
-	#save_ts_pickle('Q-ET-Qtable', Q)
 
 def sarsa(alpha, gamma, epsilon):
 	
@@ -323,7 +323,7 @@ def sarsa(alpha, gamma, epsilon):
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 
 	alpha, gamma, epsilon = .1, .6, .1
-	episodes = 500
+	episodes = 1000
 
 	log = []
 	plot = []
@@ -368,9 +368,9 @@ def sarsa(alpha, gamma, epsilon):
 
 		if i % 100 == 0:
 			print("Episode: {i}.")
+	save_ts_pickle('SARSA-log', log)
+	save_ts_pickle('SARSA-Qtable', Q)
 	return plot
-	#save_ts_pickle('SARSA-log', log)
-	#save_ts_pickle('SARSA-Qtable', Q)
 
 
 

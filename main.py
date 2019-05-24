@@ -32,14 +32,9 @@ Usage notes:
 
 if __name__ == "__main__":
 
-<<<<<<< HEAD
 	# can take 'Q', 'Q-ER', 'Q-ET' or 'SARSA'
 	#methods = ["Q"]
-	methods = ["Q-ER"]
-=======
-	# can take 'Q', 'Q-ER', 'Q-ET', 'SARSA' or 'BOLTZMANN'
-	q_learning = learning('BOLTZMANN')
->>>>>>> 1b2213fa4187b78e5d282d5851587ad96d04d564
+	methods = ["Q", "SARSA", "Q-ET", "Q-ER"]
 
 	masterplot = []
 	all_all_plots = []
@@ -47,14 +42,10 @@ if __name__ == "__main__":
 		q_learning = learning(method)
 		all_plots=[]
 
-<<<<<<< HEAD
 		# Record 100
-		for i in range(10):
+		for i in range(1):
 			plot_data = q_learning(alpha = .1, gamma = .6, epsilon = .1) # here alpha gamma and epsilon can be overwritten
 			all_plots.append(plot_data)
-=======
-	q_learning(taus = 0.5, alpha = .1, gamma = .6, epsilon = .1) # here alpha gamma and epsilon can be overwritten
->>>>>>> 1b2213fa4187b78e5d282d5851587ad96d04d564
 
 
 		all_plots = np.array(all_plots)
@@ -80,13 +71,13 @@ if __name__ == "__main__":
 		sns.set_style("white")
 
 		plt.figure(figsize=(16, 10), dpi=80)
-		plt.plot(x=range(len(mean_plots)), y=mean_plots, color='tab:red')
+		plt.plot(range(len(mean_plots)), mean_plots, color='tab:red')
 
 		# Decoration
 		plt.ylim(0, 150)
 
-		xtick_labels = [str(x) for x in range(0,301,50)]
-		xtick_location = [x for x in range(0,301,50)]
+		xtick_labels = [str(x) for x in range(0,1001,50)]
+		xtick_location = [x for x in range(0,1001,50)]
 
 		plt.xticks(ticks=xtick_location, labels=xtick_labels, rotation=0, fontsize=12, horizontalalignment='center',
 		           alpha=.7)
