@@ -19,21 +19,24 @@ if __name__ == "__main__":
 
 	# can take 'Q', 'Q-ER', 'Q-ET' or 'SARSA'
 	#methods = ["Q"]
-	methods = ["Q", "Q-ER", "Q-ET"]
+	methods = ["Q-ER"]
 
 	masterplot = []
+	all_all_plots = []
 	for method in methods:
 		q_learning = learning(method)
 		all_plots=[]
 
 		# Record 100
-		for i in range(100):
+		for i in range(10):
 			plot_data = q_learning(alpha = .1, gamma = .6, epsilon = .1) # here alpha gamma and epsilon can be overwritten
 			all_plots.append(plot_data)
 
 
 		all_plots = np.array(all_plots)
+		all_all_plots.append(all_plots)
 		mean_plots = all_plots.mean(axis=0)
+		sd_plots = all_plots.mean(axis=0)
 		masterplot.append(mean_plots)
 		df = pd.DataFrame(mean_plots)
 
@@ -53,18 +56,18 @@ if __name__ == "__main__":
 		sns.set_style("white")
 
 		plt.figure(figsize=(16, 10), dpi=80)
-		plt.plot(range(len(mean_plots)), mean_plots, color='tab:red')
+		plt.plot(x=range(len(mean_plots)), y=mean_plots, color='tab:red')
 
 		# Decoration
 		plt.ylim(0, 150)
 
-		xtick_labels = [str(x) for x in range(0,1001,100)]
-		xtick_location = [x for x in range(0,1001,100)]
+		xtick_labels = [str(x) for x in range(0,301,50)]
+		xtick_location = [x for x in range(0,301,50)]
 
 		plt.xticks(ticks=xtick_location, labels=xtick_labels, rotation=0, fontsize=12, horizontalalignment='center',
 		           alpha=.7)
 		plt.yticks(fontsize=12, alpha=.7)
-		plt.title("Q-Learning", fontsize=22)
+		plt.title(method, fontsize=22)
 		plt.grid(axis='both', alpha=.3)
 
 		# Remove borders
