@@ -22,7 +22,7 @@ def q_learning(alpha = .1, gamma = .6, epsilon = .1):
 		print("episode: " + str(i))
 		while not done:
 
-			if random.uniform(0, 1) < epsilon or i<=250: # change to: i<=episodes to turn on random policy.
+			if random.uniform(0, 1) < epsilon: # change to: i<=episodes to turn on random policy.
 				action = FLenv.sample_action()
 				# Current State fetched from Env object as 16values long 1-hot vector.
 				C_S = FLenv.pos_mtx.flatten().astype(bool)
@@ -89,7 +89,7 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 		print("episode: " + str(i))
 		while not done:
 			# Either...
-			if random.uniform(0, 1) < epsilon or i <= 250:  # change to: i<=episodes to turn on random policy.
+			if random.uniform(0, 1) < epsilon:  # change to: i<=episodes to turn on random policy.
 				# ...choose random action...
 				action = FLenv.sample_action()
 				# Current State fetched from Env object as 16values long 1-hot vector.
@@ -181,7 +181,7 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .1):
 			print("episode: " + str(i))
 			while not done:
 
-				if random.uniform(0, 1) < epsilon or i <= 250:  # change to: i<=episodes to turn on random policy.
+				if random.uniform(0, 1) < epsilon:  # change to: i<=episodes to turn on random policy.
 
 					#### !!!!!!
 					raise NotImplementedError
@@ -243,7 +243,7 @@ def sarsa(alpha, gamma, epsilon):
 		print("episode: " + str(i))
 		while not done:
 
-			if random.uniform(0, 1) < epsilon or i<=250: # change to: i<=episodes to turn on random policy.
+			if random.uniform(0, 1) < epsilon: # change to: i<=episodes to turn on random policy.
 				action = FLenv.sample_action()
 				# Current State fetched from Env object as 16values long 1-hot vector.
 				C_S = FLenv.pos_mtx.flatten().astype(bool)
