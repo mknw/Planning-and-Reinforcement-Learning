@@ -60,6 +60,86 @@ def q_learning(alpha = .1, gamma = .6, epsilon = .1):
 	return plot_data
 
 
+
+def q_boltzmann(taus = [0.3], alpha = .1, gamma = .6, epsilon = .1):
+	# local import
+	import math
+
+	# Frozen lake environment
+	FLenv = Environment()
+	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
+	episodes = 1000
+	log = []
+	
+
+	if isinstance(taus, list):
+		if len(taus) > 1:
+			anneal_point = episodes / len(tau)	
+		else:
+			tau = taus[0]
+			anneal_point = False
+	elif isinstance(taus, float):
+		tau = taus
+	else:
+		raise Exception
+
+	### boltzmann exploration
+	def softmax(tau, actions):
+		actions = actions[0]
+		# import ipdb; ipdb.set_trace()
+		tot = sum([math.exp(v/tau) for v in actions])
+		probs = [math.exp(v/tau)/ tot for v in actions]
+		threshold = random.random()
+		cum_prob = float(0)
+		# 
+		for i in range(len(probs)):
+			cum_prob += probs[i]
+			if cum_prob > threshold:
+				return i
+		return np.argmax(probs)
+	###
+
+	for i in range(episodes):
+		FLenv.reset()
+		epochs, penalties, tot_reward = 0, 0, 0
+		done = False
+
+		if anneal_point:
+			if i % anneal_point == 0:
+				idx = i // anneal_point
+				tau = taus[idx]
+
+		print("episode: " + str(i))
+		while not done:
+
+			C_S = FLenv.pos_mtx.flatten().astype(bool)
+			action = softmax(tau, Q[C_S])
+			next_state, reward, done = FLenv.step(action)
+
+			if reward == -10:
+				penalties += 1
+			tot_reward += reward
+
+			# Bellman Equation:
+			prev_val = Q[C_S, action]
+			next_max = np.max(Q[next_state])
+			new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
+			# update Q table.
+			Q[C_S, action] = new_val
+
+			state = next_state
+			# append to log
+			epochs += 1
+
+		log.append([i, epochs, penalties, tot_reward])
+
+		if i % 100 == 0:
+			print("Episode: {i}.")
+	save_ts_pickle('QBOLT-log', log)
+	save_ts_pickle('QBOLT-table', Q)
+
+
+
 def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 	# Frozen lake environment
 	FLenv = Environment()
@@ -232,7 +312,6 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .1, lmbda = 0.3):# Initializ
 			print("Episode: {i}.")
 
 	return all_reward
-
 	#save_ts_pickle('Q-ET-log', log)
 	#save_ts_pickle('Q-ET-Qtable', Q)
 
@@ -313,3 +392,6 @@ def learning(method):
 
 	if method == "SARSA":
 		return sarsa
+
+	if method == "BOLTZMANN":
+		return q_boltzmann

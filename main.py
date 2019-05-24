@@ -13,13 +13,33 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from learning import learning # sorry about that
 
+"""
+Usage notes:
 
+## Boltzmann exploration
+
+	- takes one more argument (taus) which can be a list or float (between 0 and 1)
+	examples:
+		q_boltzmann = learning('BOLTZMANN')
+		q_boltzmann(taus = [0.9, 0.5, 0.1], alpha, gamma, epsilon)
+	or:
+		q_boltzmann = learning('BOLTZMANN')
+		q_boltzmann(taus = 0.3, alpha, gamma, epsilon)
+
+## 
+
+"""
 
 if __name__ == "__main__":
 
+<<<<<<< HEAD
 	# can take 'Q', 'Q-ER', 'Q-ET' or 'SARSA'
 	#methods = ["Q"]
 	methods = ["Q-ER"]
+=======
+	# can take 'Q', 'Q-ER', 'Q-ET', 'SARSA' or 'BOLTZMANN'
+	q_learning = learning('BOLTZMANN')
+>>>>>>> 1b2213fa4187b78e5d282d5851587ad96d04d564
 
 	masterplot = []
 	all_all_plots = []
@@ -27,10 +47,14 @@ if __name__ == "__main__":
 		q_learning = learning(method)
 		all_plots=[]
 
+<<<<<<< HEAD
 		# Record 100
 		for i in range(10):
 			plot_data = q_learning(alpha = .1, gamma = .6, epsilon = .1) # here alpha gamma and epsilon can be overwritten
 			all_plots.append(plot_data)
+=======
+	q_learning(taus = 0.5, alpha = .1, gamma = .6, epsilon = .1) # here alpha gamma and epsilon can be overwritten
+>>>>>>> 1b2213fa4187b78e5d282d5851587ad96d04d564
 
 
 		all_plots = np.array(all_plots)
