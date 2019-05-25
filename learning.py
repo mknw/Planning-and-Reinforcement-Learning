@@ -5,7 +5,7 @@ import pandas as pd
 import env
 from env import Environment, save_ts_pickle
 
-def q_learning(episodes=500, alpha = .1, gamma = .6, epsilon = .05):
+def q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 	"""
 	Basic implementation of Q learning algorithm.
 	Takes:
@@ -23,22 +23,17 @@ def q_learning(episodes=500, alpha = .1, gamma = .6, epsilon = .05):
 	plot_data = []
 
 	for i in range(episodes):
-		FLenv.reset()
 		epochs, penalties, tot_reward = 0, 0, 0
 		done = False
 		print("episode: " + str(i))
+		C_S = FLenv.pos_mtx.flatten().astype(bool)
 		while not done:
 
 			if random.random() < epsilon: # change to: i<=episodes to turn on random policy.
 				action = FLenv.sample_action()
-				# Current State fetched from Env object as 16values long 1-hot vector.
-				C_S = FLenv.pos_mtx.flatten().astype(bool)
 			else:
-				# C(urrent)S(tate) as 1-hot, 16 vals-long vector (same thing).
-				C_S = FLenv.pos_mtx.flatten().astype(bool)
 				action = np.argmax(Q[C_S])
-			import ipdb; ipdb.set_trace()
-			next_state, reward, done = FLenv.step(action)
+			s_prime, reward, done = FLenv.step(action)
 
 			if reward == -10:
 				penalties += 1
@@ -46,22 +41,20 @@ def q_learning(episodes=500, alpha = .1, gamma = .6, epsilon = .05):
 
 			# Bellman Equation:
 			prev_val = Q[C_S, action]
-			next_max = np.max(Q[next_state])
+			next_max = np.max(Q[s_prime])
 			new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
 			# update Q table.
 			Q[C_S, action] = new_val
-
-			state = next_state
-			# append to log
+			C_S = s_prime
 			epochs += 1
-
+		# prepare next episode
+		FLenv.reset()
 		log.append([i, epochs, penalties, tot_reward])
-		plot_data.append(tot_reward)
 
 		if i % 100 == 0:
 			print("Episode: {i}.")
-	save_ts_pickle('Qlog', log)
-	save_ts_pickle('Qtable', Q)
+	# save_ts_pickle('Qlog', log)
+	# save_ts_pickle('Qtable', Q)
 	return log
 
 
