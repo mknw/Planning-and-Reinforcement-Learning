@@ -9,7 +9,7 @@ import random
 import pandas as pd
 import env
 from learning import learning # sorry about that
-
+from viz import *
 """
 Usage notes:
 
@@ -32,11 +32,15 @@ if __name__ == "__main__":
 	#methods = ["Q"]
 	record = []
 	q_learning = learning("BOLTZMANN")
-	for series in range(5):
+	for series in range(30):
 
 		log = q_learning() # epi=500 , alpha=.1 , gamma=.6 , epsilon=.05
 		record.append(log)
 	
-	rr = np.array(record)
+	record = np.array(record)
+
+	# let's plot
+	avg, err = stat_ts(record)
+	plot_ts(avg)
 
 	import ipdb; ipdb.set_trace()
