@@ -22,7 +22,7 @@ def q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 
 
-	log = [['episode', 'total epochs', 'penalties', 'reward']]
+	log = []
 	plot_data = []
 
 	for i in range(episodes):
@@ -63,7 +63,7 @@ def q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 	return log
 
 
-def q_boltzmann(taus = [0.3], alpha = .1, gamma = .6):
+def q_boltzmann(episodes=1000, taus = [0.3], alpha = .1, gamma = .6):
 	# local import
 	import math
 
@@ -143,7 +143,7 @@ def q_boltzmann(taus = [0.3], alpha = .1, gamma = .6):
 
 
 
-def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
+def q_learning_er(episodes=1000, alpha = .1, gamma = .6, epsilon = .1):
 	# Frozen lake environment
 	FLenv = Environment()
 
@@ -238,7 +238,7 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 	return log
 
 
-def q_learning_et(alpha = .1, gamma = .6, epsilon = .2, lmbda = 0.3):
+def q_learning_et(episodes=1000, alpha = .1, gamma = .6, epsilon = .2, lmbda = 0.3):
 	# Initialize decay rate $\lambda$
 	"""
 	Eligibility traces: replacing traces
@@ -318,7 +318,7 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .2, lmbda = 0.3):
 	#save_ts_pickle('Q-ET-Qtable', Q)
 	return log
 
-def sarsa(alpha = .1, gamma = .6, epsilon = .2):
+def sarsa(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 	
 	## define sarsa
 	FLenv = Environment()
@@ -369,7 +369,7 @@ def sarsa(alpha = .1, gamma = .6, epsilon = .2):
 	return log
 
 
-def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
+def q_q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 
 	# Frozen lake environment
 	FLenv = Environment()

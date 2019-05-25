@@ -47,9 +47,8 @@ if __name__ == "__main__":
 		brain = learning(method)
 		for series in range(30):
 	
-			log = brain() # epi=500 , alpha=.1 , gamma=.6 , epsilon=.05
+			log = brain(episodes=1005) # epi=500 , alpha=.1 , gamma=.6 , epsilon=.05
 			record.append(log)
+		avg = stat_ts(np.array(record))
 		
-		avg, err = stat_ts(np.array(record))
-	
-		plot(avg, method, epsi=0.2, episodes=1000)
+		plot(avg, method, epsi=0.2, episodes=1000, save=True)

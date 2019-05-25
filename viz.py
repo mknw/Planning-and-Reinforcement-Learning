@@ -19,11 +19,11 @@ def stat_ts(ts, dim=3):
 	dim_series = ts[:,:,dim]
 	
 	# std error
-	dim_std = np.std(dim_series, axis=0)
-	stderr = dim_std / n_runs
+	# dim_std = np.std(dim_series, axis=0)
+	# stderr = dim_std / n_runs
 	# average
 	ts_averaged = np.sum(dim_series, axis=0) / n_runs
-	return ts_averaged, stderr
+	return ts_averaged
 
 
 
@@ -43,10 +43,10 @@ def plot_ts(ts_avg, ts_stderr=False):
 	plt.show()
 
 
-def plot(mean_plots,method,epsi=0.1,episodes=1000):
+def plot(mean_plots,method,epsi=0.1,episodes=1000,save=False):
 
-	mean_plots = smooth(mean_plots)
-
+	mean_plots = smooth(mean_plots, 15)
+	mean_plots = mean_plots[:-5]
 	large = 22
 	med = 16
 	small = 12
@@ -62,7 +62,7 @@ def plot(mean_plots,method,epsi=0.1,episodes=1000):
 	plt.style.use('seaborn-whitegrid')
 	sns.set_style("white")
 
-	plt.figure(figsize=(16, 10), dpi=80)
+	plt.figure(figsize=(16, 10), dpi=300)
 	plt.plot(range(len(mean_plots)), mean_plots, color='tab:red')
 
 	# Decoration
@@ -82,4 +82,7 @@ def plot(mean_plots,method,epsi=0.1,episodes=1000):
 	plt.gca().spines["bottom"].set_alpha(0.3)
 	plt.gca().spines["right"].set_alpha(0.0)
 	plt.gca().spines["left"].set_alpha(0.3)
-	plt.show()
+	if save:
+		plt.savefig(method, dpi=300)
+
+	# plt.show()
