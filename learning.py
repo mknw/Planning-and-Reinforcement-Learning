@@ -428,7 +428,6 @@ def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
 				new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
 				# update Q1 table.
 				Q1[C_S, action] = new_val
-				print(Q1)
 
 			if update == "A":
 				prev_val = Q2[C_S, action]
@@ -436,7 +435,6 @@ def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
 				new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
 				# update Q1 table.
 				Q2[C_S, action] = new_val
-				print(Q2)
 
 			state = next_state
 			# append to log
