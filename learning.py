@@ -35,6 +35,8 @@ def q_learning(alpha = .1, gamma = .6, epsilon = .1):
 				action = np.argmax(Q[C_S])
 
 			next_state, reward, done = FLenv.step(action)
+			print("STEP:",next_state,reward,done)
+			#input("Wait")
 
 			if reward == -10:
 				penalties += 1
@@ -396,11 +398,9 @@ def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
 
 			# Choose a* from table 1 or 2
 			if random.uniform(0, 1) > 0.5:
-				Q = Q1
-				Q_other = Q2
+				update="A"
 			else:
-				Q = Q2
-				Q_other = Q1
+				update="B"
 
 			if random.uniform(0, 1) < epsilon: # change to: i<=episodes to turn on random policy.
 				action = FLenv.sample_action()
@@ -409,16 +409,19 @@ def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
 			else:
 				# C(urrent)S(tate) as 1-hot, 16 vals-long vector (same thing).
 				C_S = FLenv.pos_mtx.flatten().astype(bool)
-				# Find a* that optimizes Q
-				a_star = np.argmax(Q[C_S])
-				# Use the OTHER Q-table to find the appropriate value given C_S and a* from Q
-				action = int(Q_other[C_S, a_star][0])
-				print("a_star","action","FLenv.sample_action()")
-				print(a_star,action,FLenv.sample_action())
-				input("lol")
-				print(Q,Q1)
+				# Choose a based on Q1,Q2
+				if update == "A":
+					action = np.argmax(Q1[C_S])
+					print(action,C_S,Q1,Q1[C_S])
+					input("QA:Wait a minute")
+
+				if update == "B":
+					action = np.argmax(Q2[C_S])
+					print(action,C_S,Q2,Q2[C_S])
+					input("QB:Wait a minute")
 
 			next_state, reward, done = FLenv.step(action)
+			print("STEP:",next_state,reward,done)
 
 			if reward == -10:
 				penalties += 1
@@ -426,11 +429,25 @@ def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
 
 			# Update Q with value from Q_other
 			# Bellman Equation:
-			prev_val = Q[C_S, action]
-			next_max = np.max(Q[next_state])
-			new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
-			# update Q1 table.
-			Q[C_S, action] = new_val
+			if update == "B":
+				prev_val = Q1[C_S, action]
+				next_max = np.max(Q1[next_state])
+				new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
+				# update Q1 table.
+				Q1[C_S, action] = new_val
+				print("prev_val","next_max","new_val")
+				print(prev_val,next_max,new_val)
+				input("updateB:Wait a minute")
+
+			if update == "A":
+				prev_val = Q2[C_S, action]
+				next_max = np.max(Q2[next_state])
+				new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
+				# update Q1 table.
+				Q2[C_S, action] = new_val
+				print("prev_val","next_max","new_val")
+				print(prev_val,next_max,new_val)
+				input("updateA:Wait a minute")
 
 			state = next_state
 			# append to log

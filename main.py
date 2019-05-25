@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
 	# can take 'Q', 'Q-ER', 'Q-ET' or 'SARSA'
 	#methods = ["Q"]
-	methods = ["QQ"]#, "SARSA", "Q-ET", "Q-ER"]
+	methods = ["Q"]#, "SARSA", "Q-ET", "Q-ER"]
 
 	plot_dict = {}
 	all_all_plots = []
