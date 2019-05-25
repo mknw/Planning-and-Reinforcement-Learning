@@ -58,10 +58,10 @@ class Environment(object):
 		self.lake_map[y_crack, x_crack] = "C"
 		print("Environment renewed.")
 		# generates self.pos_mtx to keep track of agent.
-		self.get_pos(reset=True) # set position matrix at "S"tart.
+		self.update_pos_mtx(reset=True) # set position matrix at "S"tart.
 		pass
 
-	def get_pos(self, reset=False):
+	def update_pos_mtx(self, reset=False):
 		# get agent starting position
 		if reset == True:
 			self.pos = list(np.where(self.lake_map == "S"))
@@ -71,6 +71,12 @@ class Environment(object):
 		# print("Agent at position: " + str(self.pos))
 		return self.pos_mtx
 
+	def get_state(self):
+		"""Outputs state as integer
+		from self.pos_mtx (mapping between lake and states)"""
+		state_coords = np.where(self.pos_mtx == True)
+		next_state = (state_coords[0] * self.size) + state_coords[1]
+		return next_state
 
 	def move(self, action_n):
 		"""Performs actual movement. 
@@ -100,7 +106,7 @@ class Environment(object):
 		if np.all(prev_pos == self.pos):
 			stop = True
 
-		pos_mtx = self.get_pos()
+		self.update_pos_mtx()
 		current_state = self.lake_map[self.pos_mtx][0]
 		# create state vector by flattening state map.
 		return current_state, stop
@@ -137,8 +143,11 @@ class Environment(object):
 		if -1 in self.pos or 4 in self.pos:
 			self.pos = copy_s
 			hit_grid = True
-
-		s_prime = self.lake_map[self.pos[0][0], self.pos[0][1]]  # where s_prime is a letter from the map
+		
+		# import ipdb;ipdb.set_trace()
+		s_prime = self.lake_map[self.pos[0], self.pos[0]]  # where s_prime is a letter from the map
+		import ipdb;ipdb.set_trace()
+		self.update_pos_mtx()
 		# create state vector by flattening state map.
 		return s_prime, hit_grid
 
@@ -152,7 +161,7 @@ class Environment(object):
 		- "done" (end game).
 		"""
 		# Perform action, update position:
-		current_state, stop = self.move(action) # move.
+		s_prime, stop = self.alt_move(action) # move.
 		
 		if stop: # did the agent move at all from his starting pos?
 			reward = 0
@@ -164,10 +173,10 @@ class Environment(object):
 			next_state = self.get_state()
 			return next_state, reward, done # return here to stepside "self.render()" after agent loss.
 		elif current_state == "F":  # After moving, his he slipping on frozen ice?
-			if random.uniform(0, 1) <= .05:
+			if random.random() < .05:
 				stop = False
 				while not stop:
-					next_state, stop = self.move(action)
+					next_state, stop = self.alt_move(action)
 					if next_state == "C":
 						print("GAME OVER")
 						reward = -10
@@ -192,15 +201,9 @@ class Environment(object):
 			reward = 0
 
 		self.render()
-		next_state = self.get_state()
+		# next_state = self.get_state()
 		return next_state, reward, done
 
-	def get_state(self):
-		"""Outputs state as integer
-		from self.pos_mtx (mapping between lake and states)"""
-		state_coords = np.where(self.pos_mtx == True)
-		next_state = (state_coords[0] * self.size) + state_coords[1]
-		return next_state
 
 	def render(self):
 		# show something, somewhere. Ideally on a screen.

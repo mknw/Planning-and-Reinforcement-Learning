@@ -5,16 +5,21 @@ import pandas as pd
 import env
 from env import Environment, save_ts_pickle
 
-def q_learning(alpha = .1, gamma = .6, epsilon = .1):
-
+def q_learning(episodes=500, alpha = .1, gamma = .6, epsilon = .05):
+	"""
+	Basic implementation of Q learning algorithm.
+	Takes:
+		1. alpha: step size parameter
+		2. gamma: discount rate parameter
+		3. epsilon: epsilon-greedy policy parameter
+	"""
 	# Frozen lake environment
 	FLenv = Environment()
 
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 
-	episodes = 1000
 
-	log = []
+	log = [['episode', 'total epochs', 'penalties', 'reward']]
 	plot_data = []
 
 	for i in range(episodes):
@@ -24,7 +29,7 @@ def q_learning(alpha = .1, gamma = .6, epsilon = .1):
 		print("episode: " + str(i))
 		while not done:
 
-			if random.uniform(0, 1) < epsilon: # change to: i<=episodes to turn on random policy.
+			if random.random() < epsilon: # change to: i<=episodes to turn on random policy.
 				action = FLenv.sample_action()
 				# Current State fetched from Env object as 16values long 1-hot vector.
 				C_S = FLenv.pos_mtx.flatten().astype(bool)
@@ -32,7 +37,7 @@ def q_learning(alpha = .1, gamma = .6, epsilon = .1):
 				# C(urrent)S(tate) as 1-hot, 16 vals-long vector (same thing).
 				C_S = FLenv.pos_mtx.flatten().astype(bool)
 				action = np.argmax(Q[C_S])
-
+			import ipdb; ipdb.set_trace()
 			next_state, reward, done = FLenv.step(action)
 
 			if reward == -10:
@@ -57,8 +62,7 @@ def q_learning(alpha = .1, gamma = .6, epsilon = .1):
 			print("Episode: {i}.")
 	save_ts_pickle('Qlog', log)
 	save_ts_pickle('Qtable', Q)
-	return plot_data
-
+	return log
 
 
 def q_boltzmann(taus = [0.3], alpha = .1, gamma = .6, epsilon = .1):
@@ -375,24 +379,31 @@ def sarsa(alpha, gamma, epsilon):
 
 
 
-def learning(method):
+def learning(algo):
 	""" wrapper function for:
 	* Q-learning
 	* Q-learning with experience replay
 	* SARSA
 	"""
+	methods = ["Q", "SARSA", "Q-ET", "Q-ER", "BOLTZMANN"]
 
-	if method == "Q":
+
+	method = "Q"
+	if algo not in methods:
+		raise ValueError("Method not found.")
+
+
+	if algo == "Q":
 		return q_learning
 
-	if method == "Q-ER":
+	if algo == "Q-ER":
 		return q_learning_er
 
-	if method == "Q-ET":
+	if algo == "Q-ET":
 		return q_learning_et
 
-	if method == "SARSA":
+	if algo == "SARSA":
 		return sarsa
 
-	if method == "BOLTZMANN":
+	if algo == "BOLTZMANN":
 		return q_boltzmann
