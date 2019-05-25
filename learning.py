@@ -35,6 +35,9 @@ def q_learning(alpha = .1, gamma = .6, epsilon = .1):
 				action = np.argmax(Q[C_S])
 
 			next_state, reward, done = FLenv.step(action)
+			print("next","reward","done")
+			print(next_state,reward,done)
+			input("wait")
 
 			if reward == -10:
 				penalties += 1
