@@ -153,6 +153,7 @@ class Environment(object):
 		
 		state, reward, done = self.metamove(action)
 		s_prime = self.pos_mtx.flatten().astype(bool)
+		print(reward)
 		return s_prime, reward, done
 
 	def metamove(self, action):

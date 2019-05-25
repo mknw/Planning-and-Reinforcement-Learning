@@ -7,6 +7,7 @@ import pandas as pd
 import env
 from env import Environment, save_ts_pickle
 
+
 def q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 	"""
 	Basic implementation of Q learning algorithm.
@@ -35,6 +36,7 @@ def q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 				action = FLenv.sample_action()
 			else:
 				action = np.argmax(Q[C_S])
+
 			s_prime, reward, done = FLenv.step(action)
 
 			if reward == -10:
@@ -52,6 +54,7 @@ def q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 		# prepare next episode
 		FLenv.reset()
 		log.append([i, epochs, penalties, tot_reward])
+		plot_data.append(tot_reward)
 
 		if i % 100 == 0:
 			print("Episode: {i}.")
@@ -60,7 +63,7 @@ def q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 	return log
 
 
-def q_boltzmann(taus = [0.3], alpha = .1, gamma = .6, epsilon = .1):
+def q_boltzmann(taus = [0.3], alpha = .1, gamma = .6):
 	# local import
 	import math
 
@@ -134,8 +137,8 @@ def q_boltzmann(taus = [0.3], alpha = .1, gamma = .6, epsilon = .1):
 
 		if i % 100 == 0:
 			print("Episode: {i}.")
-	save_ts_pickle('QBOLT-log', log)
-	save_ts_pickle('QBOLT-table', Q)
+	# save_ts_pickle('QBOLT-log', log)
+	# save_ts_pickle('QBOLT-table', Q)
 	return log
 
 
@@ -171,14 +174,13 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 		epochs, penalties, tot_reward = 0, 0, 0
 		done = False
 		print("episode: " + str(i))
+		C_S = FLenv.pos_mtx.flatten().astype(bool)
 		while not done:
 			# Either...
 			if random.uniform(0, 1) < epsilon:# or i <= 250:  # change to: i<=episodes to turn on random policy.
-				C_S = FLenv.pos_mtx.flatten().astype(bool)
 				# ...choose random action...
 				action = FLenv.sample_action()
 			else:
-				C_S = FLenv.pos_mtx.flatten().astype(bool)
 				# ...or best action
 				action = np.argmax(Q[C_S])
 
@@ -199,7 +201,7 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 			D.append(sample)
 
 			# Increment state
-			state = next_state
+			C_S = next_state
 
 			# Update k
 			k = k + 1
@@ -223,6 +225,7 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 				# Update l (number or replays played)
 				l = l + 1
 
+			C_S = next_state
 			epochs += 1
 		all_rewards.append(tot_reward)
 
@@ -230,12 +233,12 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 
 		if i % 100 == 0:
 			print("Episode: {i}.")
-	save_ts_pickle('ER-log', log)
-	save_ts_pickle('ER-Qtable', Q)
-	return all_rewards
+	#save_ts_pickle('ER-log', log)
+	#save_ts_pickle('ER-Qtable', Q)
+	return log
 
 
-def q_learning_et(alpha = .1, gamma = .6, epsilon = .05, lmbda = 0.3):
+def q_learning_et(alpha = .1, gamma = .6, epsilon = .2, lmbda = 0.3):
 	# Initialize decay rate $\lambda$
 	"""
 	Eligibility traces: replacing traces
@@ -269,6 +272,7 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .05, lmbda = 0.3):
 		epochs, penalties, tot_reward = 0, 0, 0
 		done = False
 		print("episode: " + str(i))
+		C_S = FLenv.pos_mtx.flatten().astype(bool)
 		while not done:
 			if random.uniform(0, 1) < epsilon:  # change to: i<=episodes to turn on random policy.
 
@@ -278,10 +282,8 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .05, lmbda = 0.3):
 				E[k] = 0
 				action = FLenv.sample_action()
 				# Current State fetched from Env object as 16values long 1-hot vector.
-				C_S = FLenv.pos_mtx.flatten().astype(bool)
 			else:
 				# C(urrent)S(tate) as 1-hot, 16 vals-long vector (same thing).
-				C_S = FLenv.pos_mtx.flatten().astype(bool)
 				action = np.argmax(Q[C_S])
 
 			next_state, reward, done = FLenv.step(action)
@@ -301,7 +303,7 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .05, lmbda = 0.3):
 			# update Q table.
 			Q[C_S, action] = new_val
 
-			state = next_state
+			C_S = next_state
 			# append to log
 			epochs += 1
 
@@ -309,40 +311,37 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .05, lmbda = 0.3):
 		all_reward.append(tot_reward)
 		log.append([i, epochs, penalties, tot_reward])
 
-		if i % 100 == 0:
-			print("Episode: {i}.")
+		# if i % 100 == 0:
+		# 	print("Episode: {i}.")
 
-	save_ts_pickle('Q-ET-log', log)
-	save_ts_pickle('Q-ET-Qtable', Q)
-	return all_reward
+	#save_ts_pickle('Q-ET-log', log)
+	#save_ts_pickle('Q-ET-Qtable', Q)
+	return log
 
-def sarsa(alpha, gamma, epsilon):
+def sarsa(alpha = .1, gamma = .6, epsilon = .2):
 	
 	## define sarsa
 	FLenv = Environment()
 
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 
-	alpha, gamma, epsilon = .1, .6, .1
 	episodes = 1000
 
 	log = []
-	plot = []
 
 	for i in range(episodes):
 		FLenv.reset()
 		epochs, penalties, tot_reward = 0, 0, 0
 		done = False
 		print("episode: " + str(i))
+		C_S = FLenv.pos_mtx.flatten().astype(bool)
 		while not done:
 
 			if random.uniform(0, 1) < epsilon: # change to: i<=episodes to turn on random policy.
 				action = FLenv.sample_action()
 				# Current State fetched from Env object as 16values long 1-hot vector.
-				C_S = FLenv.pos_mtx.flatten().astype(bool)
 			else:
 				# C(urrent)S(tate) as 1-hot, 16 vals-long vector (same thing).
-				C_S = FLenv.pos_mtx.flatten().astype(bool)
 				action = np.argmax(Q[C_S])
 			
 			# take action A, observe R, S_prime
@@ -359,20 +358,86 @@ def sarsa(alpha, gamma, epsilon):
 			Q[C_S, action] = new_V
 			
 
-			state = next_state
+			C_S = next_state
 			action = A_prime
 			# append to log
 			epochs += 1
-		plot.append(tot_reward)
+		log.append([i, epochs, penalties, tot_reward])
+
+		if i % 100 == 0:
+			print("Episode: {i}.")
+	return log
+
+
+def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
+
+	# Frozen lake environment
+	FLenv = Environment()
+
+	Q1 = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
+	Q2 = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
+
+	episodes = 1000
+
+	log = []
+
+	for i in range(episodes):
+		FLenv.reset()
+		epochs, penalties, tot_reward = 0, 0, 0
+		done = False
+		print("episode: " + str(i))
+		C_S = FLenv.pos_mtx.flatten().astype(bool)
+		while not done:
+
+			# Choose a* from table 1 or 2
+			if random.uniform(0, 1) > 0.5:
+				update="A"
+			else:
+				update="B"
+
+			if random.uniform(0, 1) < epsilon: # change to: i<=episodes to turn on random policy.
+				action = FLenv.sample_action()
+				# Current State fetched from Env object as 16values long 1-hot vector.
+			else:
+				# C(urrent)S(tate) as 1-hot, 16 vals-long vector (same thing).
+				# Choose a based on Q1,Q2
+				if update == "A":
+					action = np.argmax(Q1[C_S])
+
+				if update == "B":
+					action = np.argmax(Q2[C_S])
+
+			next_state, reward, done = FLenv.step(action)
+
+			if reward == -10:
+				penalties += 1
+			tot_reward += reward
+
+			# Update Q with value from Q_other
+			# Bellman Equation:
+			if update == "B":
+				prev_val = Q1[C_S, action]
+				next_max = np.max(Q1[next_state])
+				new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
+				# update Q1 table.
+				Q1[C_S, action] = new_val
+
+			if update == "A":
+				prev_val = Q2[C_S, action]
+				next_max = np.max(Q2[next_state])
+				new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
+				# update Q1 table.
+				Q2[C_S, action] = new_val
+
+			C_S = next_state
+			# append to log
+			epochs += 1
 
 		log.append([i, epochs, penalties, tot_reward])
 
 		if i % 100 == 0:
 			print("Episode: {i}.")
-	save_ts_pickle('SARSA-log', log)
-	save_ts_pickle('SARSA-Qtable', Q)
-	return plot
-
+	return log
 
 
 def learning(algo):
@@ -381,10 +446,9 @@ def learning(algo):
 	* Q-learning with experience replay
 	* SARSA
 	"""
-	methods = ["Q", "SARSA", "Q-ET", "Q-ER", "BOLTZMANN"]
+	methods = ["Q", "SARSA", "Q-ET", "Q-ER", "BOLTZMANN","QQ"]
 
 
-	method = "Q"
 	if algo not in methods:
 		raise ValueError("Method not found.")
 
@@ -403,3 +467,6 @@ def learning(algo):
 
 	if algo == "BOLTZMANN":
 		return q_boltzmann
+
+	if algo == "QQ":
+		return q_q_learning

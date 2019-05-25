@@ -29,18 +29,27 @@ Usage notes:
 
 if __name__ == "__main__":
 	# can take 'Q', 'Q-ER', 'Q-ET' or 'SARSA'
-	#methods = ["Q"]
-	record = []
-	q_learning = learning("BOLTZMANN")
-	for series in range(30):
-
-		log = q_learning() # epi=500 , alpha=.1 , gamma=.6 , epsilon=.05
-		record.append(log)
+	methods = ["Q", "BOLTZMANN",  'Q-ER', 'Q-ET', 'SARSA', 'QQ']
 	
-	record = np.array(record)
+	# parameters:
+	"""
+	* episodes: 1000
+	* alpha: .1
+	* gamma: .6
+	* epsilon: .2
+	* tau(s): [.6, .2, .05]
+	* lambda: .3
+	* 
+	"""
 
-	# let's plot
-	avg, err = stat_ts(record)
-	plot_ts(avg)
-
-	import ipdb; ipdb.set_trace()
+	for method in methods:
+		record = []
+		brain = learning(method)
+		for series in range(30):
+	
+			log = brain() # epi=500 , alpha=.1 , gamma=.6 , epsilon=.05
+			record.append(log)
+		
+		avg, err = stat_ts(np.array(record))
+	
+		plot(avg, method, epsi=0.2, episodes=1000)
