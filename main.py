@@ -28,9 +28,19 @@ Usage notes:
 """
 
 if __name__ == "__main__":
+# 	with open("learning.py") as fp:
+# 		for i, line in enumerate(fp):
+# 			if "\xe2" in line:
+# 				print(i, repr(line))
+# 				import ipdb; ipdb.set_trace()
 
 	# can take 'Q', 'Q-ER', 'Q-ET' or 'SARSA'
 	#methods = ["Q"]
-	q_learning = learning("Q")
-	log = q_learning() # epi=500 , alpha=.1 , gamma=.6 , epsilon=.05
+	record = []
+	q_learning = learning("BOLTZMANN")
+	for series in range(5):
+
+		log = q_learning() # epi=500 , alpha=.1 , gamma=.6 , epsilon=.05
+		record.append(['series no: {}'.format(series), log])
+	
 	import ipdb; ipdb.set_trace()
