@@ -9,9 +9,6 @@ import random
 import pandas as pd
 from plot import plot
 import env
-import matplotlib as mpl
-import seaborn as sns
-import matplotlib.pyplot as plt
 from learning import learning # sorry about that
 
 """
@@ -35,18 +32,18 @@ if __name__ == "__main__":
 
 	# can take 'Q', 'Q-ER', 'Q-ET' or 'SARSA'
 	#methods = ["Q"]
-	methods = ["Q"]#, "SARSA", "Q-ET", "Q-ER"]
-
+	methods = ["SARSA"]#, "SARSA", "Q-ET", "Q-ER"]
 	plot_dict = {}
 	all_all_plots = []
 	for method in methods:
 		plot_dict[method] = {}
 		q_learning = learning(method)
-		all_plots=[]
 
-		# Record 100
-		for i in range(100):
-			plot_data = q_learning(alpha = .1, gamma = .6, epsilon = .1) # here alpha gamma and epsilon can be overwritten
+		#for alpha in [.01,.05,.1,.2,.5]:
+		all_plots = []
+			# Record 100
+		for i in range(10):
+			plot_data = q_learning(alpha = .1, gamma = .6, epsilon = .2) # here alpha gamma and epsilon can be overwritten
 			all_plots.append(plot_data)
 
 
@@ -58,5 +55,4 @@ if __name__ == "__main__":
 		plot_dict[method]["sd"] = sd_plots
 		df = pd.DataFrame(mean_plots)
 
-		plot(mean_plots,method,episodes=1000)
-
+		plot(mean_plots,method,epsi=.02,episodes=1000)

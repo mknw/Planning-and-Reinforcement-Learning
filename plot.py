@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def plot(mean_plots,method,episodes=1000):
+def plot(mean_plots,method,epsi=0.1,episodes=1000):
 
 	large = 22
 	med = 16
@@ -31,7 +31,7 @@ def plot(mean_plots,method,episodes=1000):
 	plt.xticks(ticks=xtick_location, labels=xtick_labels, rotation=0, fontsize=12, horizontalalignment='center',
 	           alpha=.7)
 	plt.yticks(fontsize=12, alpha=.7)
-	plt.title(method, fontsize=22)
+	plt.title(method+" epsilon@ "+str(epsi), fontsize=22)
 	plt.grid(axis='both', alpha=.3)
 
 	# Remove borders
