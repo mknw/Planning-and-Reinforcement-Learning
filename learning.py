@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import random
 from copy import copy
@@ -110,11 +112,11 @@ def q_boltzmann(taus = [0.3], alpha = .1, gamma = .6, epsilon = .1):
 				tau = taus[idx]
 
 		print("episode: " + str(i))
+		C_S = FLenv.pos_mtx.flatten().astype(bool)
 		while not done:
 
-			C_S = FLenv.pos_mtx.flatten().astype(bool)
 			action = softmax(tau, Q[C_S])
-			next_state, reward, done = FLenv.step(action)
+			s_prime, reward, done = FLenv.step(action)
 
 			if reward == -10:
 				penalties += 1
@@ -122,22 +124,22 @@ def q_boltzmann(taus = [0.3], alpha = .1, gamma = .6, epsilon = .1):
 
 			# Bellman Equation:
 			prev_val = Q[C_S, action]
-			next_max = np.max(Q[next_state])
+			next_max = np.max(Q[s_prime])
 			new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
 			# update Q table.
 			Q[C_S, action] = new_val
-
-			state = next_state
-			# append to log
+			C_S = s_prime
 			epochs += 1
+		# prepare next episode
+		FLenv.reset()
 
 		log.append([i, epochs, penalties, tot_reward])
 
 		if i % 100 == 0:
 			print("Episode: {i}.")
-	#save_ts_pickle('QBOLT-log', log)
-	#save_ts_pickle('QBOLT-table', Q)
-
+	save_ts_pickle('QBOLT-log', log)
+	save_ts_pickle('QBOLT-table', Q)
+	return log
 
 
 
@@ -238,15 +240,15 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 
 
 def q_learning_et(alpha = .1, gamma = .6, epsilon = .05, lmbda = 0.3):
-	# Initialize decay rate λ
+	# Initialize decay rate $\lambda$
 	"""
 	Eligibility traces: replacing traces
 
 	source:
 	S. Singh and R. Sutton. Reinforcement learning with replacing eligibility traces.
 	Machine Learning, 22:123–158, 1996.
-
 	"""
+
 	# Frozen lake environment
 	FLenv = Environment()
 

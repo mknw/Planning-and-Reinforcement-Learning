@@ -29,9 +29,9 @@ Usage notes:
 """
 
 if __name__ == "__main__":
-
 	# can take 'Q', 'Q-ER', 'Q-ET' or 'SARSA'
 	#methods = ["Q"]
+<<<<<<< HEAD
 	methods = ["SARSA"]#, "SARSA", "Q-ET", "Q-ER"]
 	plot_dict = {}
 	all_all_plots = []
@@ -56,3 +56,15 @@ if __name__ == "__main__":
 		df = pd.DataFrame(mean_plots)
 
 		plot(mean_plots,method,epsi=.02,episodes=1000)
+=======
+	record = []
+	q_learning = learning("BOLTZMANN")
+	for series in range(5):
+
+		log = q_learning() # epi=500 , alpha=.1 , gamma=.6 , epsilon=.05
+		record.append(log)
+	
+	rr = np.array(record)
+
+	import ipdb; ipdb.set_trace()
+>>>>>>> 9995c09c91b70b9b0e4d817cf783fac463d7af68
