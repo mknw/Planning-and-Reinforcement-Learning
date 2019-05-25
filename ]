@@ -66,9 +66,7 @@ def plot(mean_plots,method, method_pars,epsi=0.1,episodes=1000,save=False):
 	plt.plot(range(len(mean_plots)), mean_plots, color='tab:red')
 
 	# Decoration
-
 	plt.ylim(0, 150)
-	plt.xlim(0, 1000)
 
 	xtick_labels = [str(x) for x in range(0, episodes+1, 50)]
 	xtick_location = [x for x in range(0, episodes+1, 50)]
@@ -76,7 +74,7 @@ def plot(mean_plots,method, method_pars,epsi=0.1,episodes=1000,save=False):
 	plt.xticks(ticks=xtick_location, labels=xtick_labels, rotation=0, fontsize=12, horizontalalignment='center',
 	           alpha=.7)
 	plt.yticks(fontsize=12, alpha=.7)
-	plt.title(method+"\n" + method_pars, fontsize=20)
+	plt.title(method+"\n(epsilon = "+str(epsi)+")", fontsize=20)
 	plt.grid(axis='both', alpha=.3)
 
 	# Remove borders

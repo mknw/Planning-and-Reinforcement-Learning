@@ -50,5 +50,18 @@ if __name__ == "__main__":
 			log = brain(episodes=1005) # epi=500 , alpha=.1 , gamma=.6 , epsilon=.05
 			record.append(log)
 		avg = stat_ts(np.array(record))
+		if method == "Q":
+			method_pars = r"$\alpha = 0.1, \gamma = 0.6, \epsilon = 0.2$"
+		elif method == "BOLTZMANN":
+			method_pars = r"$\alpha = 0.1, \gamma= 0.6, \tau = 0.3$"
+		elif method == "Q-ER":
+			method_pars = r"$\alpha = 0.1, \gamma= 0.6, \epsilon = 0.2$"
+		elif method == "Q-ET":
+			method_pars = r"$\alpha = 0.1, \gamma= 0.6, \epsilon = 0.3, \lambda = 0.3$"
+		elif method == "SARSA":
+			method_pars = r"$\alpha = 0.1, \gamma = 0.6, \epsilon = 0.2$"
+		elif method == "QQ":
+			method_pars = r"$\alpha = 0.1, \gamma = 0.6, \epsilon = 0.2$"
 		
-		plot(avg, method, epsi=0.2, episodes=1000, save=True)
+		
+		plot(avg, method, method_pars, epsi=0.2, episodes=1000, save=True)
