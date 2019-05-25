@@ -235,7 +235,8 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 	return all_rewards
 
 
-def q_learning_et(alpha = .1, gamma = .6, epsilon = .1, lmbda = 0.3):# Initialize decay rate λ
+def q_learning_et(alpha = .1, gamma = .6, epsilon = .05, lmbda = 0.3):
+	# Initialize decay rate λ
 	"""
 	Eligibility traces: replacing traces
 
