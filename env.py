@@ -58,19 +58,24 @@ class Environment(object):
 		self.lake_map[y_crack, x_crack] = "C"
 		print("Environment renewed.")
 		# generates self.pos_mtx to keep track of agent.
-		self.get_pos(reset=True) # set position matrix at "S"tart.
+		self.update_pos_mtx(reset=True) # set position matrix at "S"tart.
 		pass
 
-	def get_pos(self, reset=False):
+	def update_pos_mtx(self, reset=False):
 		# get agent starting position
 		if reset == True:
-			self.pos = list(np.where(self.lake_map == "S"))
+			self.pos = np.array((np.where(self.lake_map == "S")))
 		# keep track of agent position by boolean pointer. 
 		self.pos_mtx = np.zeros((self.size, self.size)).astype(bool)
 		self.pos_mtx[tuple(self.pos)] = True
 		# print("Agent at position: " + str(self.pos))
-		return self.pos_mtx
 
+	def get_state(self):
+		"""Outputs state as integer
+		from self.pos_mtx (mapping between lake and states)"""
+		state_coords = np.where(self.pos_mtx == True)
+		next_state = (state_coords[0] * self.size) + state_coords[1]
+		return next_state
 
 	def move(self, action_n):
 		"""Performs actual movement. 
@@ -100,7 +105,7 @@ class Environment(object):
 		if np.all(prev_pos == self.pos):
 			stop = True
 
-		pos_mtx = self.get_pos()
+		self.update_pos_mtx()
 		current_state = self.lake_map[self.pos_mtx][0]
 		# create state vector by flattening state map.
 		return current_state, stop
@@ -122,13 +127,13 @@ class Environment(object):
 		# converted action movements to coordinates as pos now is a coordinate
 		# update pos to s_prime
 		if action == "U":  # [-1,0]
-			self.pos = np.array(self.pos) + [-1, 0]
+			self.pos += np.array([[-1], [0]])
 		elif action == "D":  # [1,0]
-			self.pos = np.array(self.pos) + [1, 0]
+			self.pos += np.array([[1], [0]])
 		elif action == "L":  # [0,-1]
-			self.pos = np.array(self.pos) + [0, -1]
+			self.pos += np.array([[0], [-1]])
 		elif action == "R":  # [0,1]
-			self.pos = np.array(self.pos) + [0, 1]
+			self.pos += np.array([[0], [1]])
 		else:
 			raise ValueError("Possible action values are: " + str(self.map_actions))
 
@@ -137,12 +142,20 @@ class Environment(object):
 		if -1 in self.pos or 4 in self.pos:
 			self.pos = copy_s
 			hit_grid = True
-
-		s_prime = self.lake_map[self.pos[0][0], self.pos[0][1]]  # where s_prime is a letter from the map
+		
+		# import ipdb;ipdb.set_trace()
+		s_prime = self.lake_map[tuple(self.pos)]  # where s_prime is a letter from the map
+		self.update_pos_mtx() # make self.pos_mtx reflect current pos. 
 		# create state vector by flattening state map.
 		return s_prime, hit_grid
 
 	def step(self, action):
+		
+		state, reward, done = self.metamove(action)
+		s_prime = self.pos_mtx.flatten().astype(bool)
+		return s_prime, reward, done
+
+	def metamove(self, action):
 		""" When movement is performed, do the following:
 		- computes outcome (slipping, wreck, game over)
 		- assign 'done' and 'reward' for current step.
@@ -152,55 +165,52 @@ class Environment(object):
 		- "done" (end game).
 		"""
 		# Perform action, update position:
-		current_state, stop = self.move(action) # move.
+		next_state, stop = self.alt_move(action) # move.
 		
 		if stop: # did the agent move at all from his starting pos?
 			reward = 0
 			done = False
-		elif current_state == "C":  # Did he move onto a crack?
+			return next_state, reward, done
+		elif next_state == "C":  # Did he move onto a crack?
 			print("GAME OVER")
 			done = True
 			reward = -10
-			next_state = self.get_state()
 			return next_state, reward, done # return here to stepside "self.render()" after agent loss.
-		elif current_state == "F":  # After moving, his he slipping on frozen ice?
-			if random.uniform(0, 1) <= .05:
-				stop = False
-				while not stop:
-					next_state, stop = self.move(action)
+		elif next_state == "F" or next_state == "S": #or next_state == "S":  # slipping on frozen ice?
+			if random.random() < .05:
+				hit_grid = False
+				while not hit_grid:
+					next_state, hit_grid = self.alt_move(action)
 					if next_state == "C":
 						print("GAME OVER")
 						reward = -10
 						done = True
+						return next_state, reward, done
 					else:
 						print("slipping away...")
 						reward = 0
 						done = False
+				return next_state, reward, done
 			else:
 				reward = 0
 				done = False
-		elif current_state == "W":  # Wreck found?
+				return next_state, reward, done
+		elif next_state == "W":  # Wreck found?
 			reward = 20
 			done = False
-			print("Wreck found!")
-		elif current_state == "G":  # Goal reached?
+			print("Treasure found!")
+			# remove treasure
+			self.lake_map[2, 2] = "F"
+			return next_state, reward, done
+		elif next_state == "G":  # Goal reached?
 			print("YOU WON!")
 			done = True  # episode ended.
 			reward = 100
+			return next_state, reward, done
 		else:
-			done = False
-			reward = 0
-
-		self.render()
-		next_state = self.get_state()
-		return next_state, reward, done
-
-	def get_state(self):
-		"""Outputs state as integer
-		from self.pos_mtx (mapping between lake and states)"""
-		state_coords = np.where(self.pos_mtx == True)
-		next_state = (state_coords[0] * self.size) + state_coords[1]
-		return next_state
+			raise NotImplementedError("The state {} came up. What should I do?".format(str(next_state)))
+			# next_state = self.get_state()
+	
 
 	def render(self):
 		# show something, somewhere. Ideally on a screen.
@@ -220,9 +230,3 @@ def save_ts_pickle(filepath, var):
 		pickle.dump(var, f)
 	print("saved to: " + filepath)
 	pass
-
-if __name__ == "__main__":
-    env = Environment()
-    import ipdb;
-
-    ipdb.set_trace()

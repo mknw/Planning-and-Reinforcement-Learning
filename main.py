@@ -9,9 +9,6 @@ import random
 import pandas as pd
 from plot import plot
 import env
-import matplotlib as mpl
-import seaborn as sns
-import matplotlib.pyplot as plt
 from learning import learning # sorry about that
 
 """
@@ -59,4 +56,5 @@ if __name__ == "__main__":
 		df = pd.DataFrame(mean_plots)
 
 		plot(mean_plots,method,episodes=1000)
+
 
