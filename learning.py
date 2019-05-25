@@ -5,6 +5,7 @@ import pandas as pd
 import env
 from env import Environment, save_ts_pickle
 
+
 def q_learning(alpha = .1, gamma = .6, epsilon = .1):
 
 	# Frozen lake environment
@@ -373,6 +374,78 @@ def sarsa(alpha, gamma, epsilon):
 	return plot
 
 
+def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
+
+	# Frozen lake environment
+	FLenv = Environment()
+
+	Q1 = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
+	Q2 = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
+
+	episodes = 1000
+
+	log = []
+	plot_data = []
+
+	for i in range(episodes):
+		FLenv.reset()
+		epochs, penalties, tot_reward = 0, 0, 0
+		done = False
+		print("episode: " + str(i))
+		while not done:
+
+			# Choose a* from table 1 or 2
+			if random.uniform(0, 1) > 0.5:
+				Q = Q1
+				Q_other = Q2
+			else:
+				Q = Q2
+				Q_other = Q1
+
+			if random.uniform(0, 1) < epsilon: # change to: i<=episodes to turn on random policy.
+				action = FLenv.sample_action()
+				# Current State fetched from Env object as 16values long 1-hot vector.
+				C_S = FLenv.pos_mtx.flatten().astype(bool)
+			else:
+				# C(urrent)S(tate) as 1-hot, 16 vals-long vector (same thing).
+				C_S = FLenv.pos_mtx.flatten().astype(bool)
+				# Find a* that optimizes Q
+				a_star = np.argmax(Q[C_S])
+				# Use the OTHER Q-table to find the appropriate value given C_S and a* from Q
+				action = int(Q_other[C_S, a_star][0])
+				print("a_star","action","FLenv.sample_action()")
+				print(a_star,action,FLenv.sample_action())
+				input("lol")
+				print(Q,Q1)
+
+			next_state, reward, done = FLenv.step(action)
+
+			if reward == -10:
+				penalties += 1
+			tot_reward += reward
+
+			# Update Q with value from Q_other
+			# Bellman Equation:
+			prev_val = Q[C_S, action]
+			next_max = np.max(Q[next_state])
+			new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
+			# update Q1 table.
+			Q[C_S, action] = new_val
+
+			state = next_state
+			# append to log
+			epochs += 1
+
+		log.append([i, epochs, penalties, tot_reward])
+		plot_data.append(tot_reward)
+
+		if i % 100 == 0:
+			print("Episode: {i}.")
+	save_ts_pickle('Qlog', log)
+	save_ts_pickle('Q1table', Q1)
+	save_ts_pickle('Q2table', Q2)
+	return plot_data
+
 
 def learning(method):
 	""" wrapper function for:
@@ -395,3 +468,6 @@ def learning(method):
 
 	if method == "BOLTZMANN":
 		return q_boltzmann
+
+	if method == "QQ":
+		return q_q_learning

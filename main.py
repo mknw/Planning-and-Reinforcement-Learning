@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
 	# can take 'Q', 'Q-ER', 'Q-ET' or 'SARSA'
 	#methods = ["Q"]
-	methods = ["Q", "SARSA", "Q-ET", "Q-ER"]
+	methods = ["QQ"]#, "SARSA", "Q-ET", "Q-ER"]
 
 	plot_dict = {}
 	all_all_plots = []
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 		all_plots=[]
 
 		# Record 100
-		for i in range(1):
+		for i in range(100):
 			plot_data = q_learning(alpha = .1, gamma = .6, epsilon = .1) # here alpha gamma and epsilon can be overwritten
 			all_plots.append(plot_data)
 
@@ -58,5 +58,5 @@ if __name__ == "__main__":
 		plot_dict[method]["sd"] = sd_plots
 		df = pd.DataFrame(mean_plots)
 
-		plot(mean_plots,method)
+		plot(mean_plots,method,episodes=1000)
 

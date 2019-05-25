@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def plot(mean_plots,method,mean=False):
+def plot(mean_plots,method,episodes=1000):
 
 	large = 22
 	med = 16
@@ -25,8 +25,8 @@ def plot(mean_plots,method,mean=False):
 	# Decoration
 	plt.ylim(0, 150)
 
-	xtick_labels = [str(x) for x in range(0, 1001, 50)]
-	xtick_location = [x for x in range(0, 1001, 50)]
+	xtick_labels = [str(x) for x in range(0, episodes+1, 50)]
+	xtick_location = [x for x in range(0, episodes+1, 50)]
 
 	plt.xticks(ticks=xtick_location, labels=xtick_labels, rotation=0, fontsize=12, horizontalalignment='center',
 	           alpha=.7)
