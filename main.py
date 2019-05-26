@@ -41,7 +41,7 @@ if __name__ == "__main__":
 	* lambda: .3
 	* 
 	"""
-
+	methods = ["QQ"]
 	for method in methods:
 		record = []
 		brain = learning(method)
@@ -49,6 +49,8 @@ if __name__ == "__main__":
 	
 			log = brain(episodes=1005) # epi=500 , alpha=.1 , gamma=.6 , epsilon=.05
 			record.append(log)
+		
+		
 		avg = stat_ts(np.array(record))
 		if method == "Q":
 			method_pars = r"$\alpha = 0.1, \gamma = 0.6, \epsilon = 0.2$"
@@ -62,6 +64,5 @@ if __name__ == "__main__":
 			method_pars = r"$\alpha = 0.1, \gamma = 0.6, \epsilon = 0.2$"
 		elif method == "QQ":
 			method_pars = r"$\alpha = 0.1, \gamma = 0.6, \epsilon = 0.2$"
-		
 		
 		plot(avg, method, method_pars, epsi=0.2, episodes=1000, save=True)
