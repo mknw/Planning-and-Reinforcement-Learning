@@ -85,8 +85,8 @@ def test_params(method,iterations=10, **params):
 if __name__ == "__main__":
 	# can take 'Q', 'Q-ER', 'Q-ET' or 'SARSA'
 
-	# methods = ["Q", "BOLTZMANN",  'Q-ER', 'Q-ET', 'SARSA', 'QQ']
-	methods = ["Q-ET", "SARSA", "QQ"]
+	methods = ["Q", "BOLTZMANN",  'Q-ER', 'Q-ET', 'SARSA', 'QQ']
+	# methods = ["Q-ET", "SARSA", "QQ"]
 	for m in methods:
 		test_params(method=m, iterations=10, alpha=[.1,.2,.3],
 					gamma=[.15,.2,.3], epsilon=[0.05,0.1,0.2])
