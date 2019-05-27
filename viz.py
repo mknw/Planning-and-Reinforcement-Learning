@@ -43,10 +43,10 @@ def plot_ts(ts_avg, ts_stderr=False):
 	plt.show()
 
 
-def plot(mean_plots,method, method_pars,epsi=0.1,episodes=1000,save=False):
+def plot(mean_plots,method, fname, method_pars,epsi=0.1,episodes=1000,save=False):
 
-	mean_plots = smooth(mean_plots, 15)
-	mean_plots = mean_plots[:-5]
+	mean_plots = smooth(mean_plots, 20)
+	mean_plots = mean_plots[:-20]
 	large = 22
 	med = 16
 	small = 12
@@ -85,6 +85,6 @@ def plot(mean_plots,method, method_pars,epsi=0.1,episodes=1000,save=False):
 	plt.gca().spines["right"].set_alpha(0.0)
 	plt.gca().spines["left"].set_alpha(0.3)
 	if save:
-		plt.savefig(method, dpi=300)
+		plt.savefig(fname, dpi=300)
 
 	# plt.show()

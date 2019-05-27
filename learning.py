@@ -8,7 +8,7 @@ import env
 from env import Environment, save_ts_pickle
 
 
-def q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
+def q_learning(alpha = .1, gamma = .6, epsilon = .2):
 	"""
 	Basic implementation of Q learning algorithm.
 	Takes:
@@ -16,6 +16,7 @@ def q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 		2. gamma: discount rate parameter
 		3. epsilon: epsilon-greedy policy parameter
 	"""
+	episodes = 1020
 	# Frozen lake environment
 	FLenv = Environment()
 
@@ -63,14 +64,14 @@ def q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 	return log
 
 
-def q_boltzmann(episodes=1000, taus = [0.3], alpha = .1, gamma = .6):
+def q_boltzmann(episodes=1000, alpha = .1, gamma = .6, taus = [0.3]):
 	# local import
 	import math
 
 	# Frozen lake environment
 	FLenv = Environment()
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
-	episodes = 1000
+	episodes = 1020
 	log = []
 	
 
@@ -143,14 +144,14 @@ def q_boltzmann(episodes=1000, taus = [0.3], alpha = .1, gamma = .6):
 
 
 
-def q_learning_er(episodes=1000, alpha = .1, gamma = .6, epsilon = .1):
+def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 	# Frozen lake environment
 	FLenv = Environment()
 
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 
 
-	episodes = 1000
+	episodes = 1020
 
 	log = []
 
@@ -238,7 +239,7 @@ def q_learning_er(episodes=1000, alpha = .1, gamma = .6, epsilon = .1):
 	return log
 
 
-def q_learning_et(episodes=1000, alpha = .1, gamma = .6, epsilon = .2, lmbda = 0.3):
+def q_learning_et(alpha = .1, gamma = .6, epsilon = .2, lmbda = 0.3):
 	# Initialize decay rate $\lambda$
 	"""
 	Eligibility traces: replacing traces
@@ -253,7 +254,7 @@ def q_learning_et(episodes=1000, alpha = .1, gamma = .6, epsilon = .2, lmbda = 0
 
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 
-	episodes = 1000
+	episodes = 1020
 
 	log = []
 
@@ -318,14 +319,14 @@ def q_learning_et(episodes=1000, alpha = .1, gamma = .6, epsilon = .2, lmbda = 0
 	#save_ts_pickle('Q-ET-Qtable', Q)
 	return log
 
-def sarsa(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
+def sarsa(alpha = .1, gamma = .6, epsilon = .2):
 	
 	## define sarsa
 	FLenv = Environment()
 
 	Q = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 
-	episodes = 1000
+	episodes = 1020
 
 	log = []
 
@@ -369,7 +370,7 @@ def sarsa(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 	return log
 
 
-def q_q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
+def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
 
 	# Frozen lake environment
 	FLenv = Environment()
@@ -377,7 +378,7 @@ def q_q_learning(episodes=1000, alpha = .1, gamma = .6, epsilon = .2):
 	Q1 = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 	Q2 = np.zeros([FLenv.observation_space_n, FLenv.action_space_n])
 
-	episodes = 1000
+	episodes = 1020
 
 	log = []
 
