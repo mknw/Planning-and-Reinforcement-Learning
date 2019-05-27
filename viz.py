@@ -67,7 +67,7 @@ def plot(mean_plots,method, fname, method_pars,epsi=0.1,episodes=1000,save=False
 
 	# Decoration
 
-	plt.ylim(0, 150)
+	plt.ylim(0, max(mean_plots)+10)
 	plt.xlim(0, 1000)
 
 	xtick_labels = [str(x) for x in range(0, episodes+1, 50)]
