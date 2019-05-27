@@ -86,5 +86,6 @@ def plot(mean_plots,method, fname, method_pars,epsi=0.1,episodes=1000,save=False
 	plt.gca().spines["left"].set_alpha(0.3)
 	if save:
 		plt.savefig(fname, dpi=300)
+		plt.close()
 
 	# plt.show()

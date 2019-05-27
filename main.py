@@ -64,7 +64,7 @@ def test_params(method,iterations=10, **params):
 		if method == "BOLTZMANN":
 			method_pars = r"$\alpha = {}, \gamma = {}, \tau= {}$".format(p1, p2, p3)
 		else:
-			method_pars = r"$\alpha = {}, \gamma = {}, exploration \theta= {}$".format(p1, p2, p3)
+			method_pars = r"$\alpha = {}, \gamma = {}, \epsilon= {}$".format(p1, p2, p3)
 
 		# start testing
 		record = []
@@ -85,8 +85,8 @@ def test_params(method,iterations=10, **params):
 if __name__ == "__main__":
 	# can take 'Q', 'Q-ER', 'Q-ET' or 'SARSA'
 
-	methods = ["Q", "BOLTZMANN",  'Q-ER', 'Q-ET', 'SARSA', 'QQ']
-
+	# methods = ["Q", "BOLTZMANN",  'Q-ER', 'Q-ET', 'SARSA', 'QQ']
+	methods = ["Q-ET", "SARSA", "QQ"]
 	for m in methods:
 		test_params(method=m, iterations=10, alpha=[.1,.2,.3],
 					gamma=[.15,.2,.3], epsilon=[0.05,0.1,0.2])
