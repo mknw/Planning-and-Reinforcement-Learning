@@ -293,10 +293,10 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .05, lmbda = 0.3):
 			k = k+1
 			# Updating the trace
 			next_max = np.max(Q[next_state])
-			E.append(min(lmbda*E[k-1] + (reward + gamma * next_max), 1))
-			# Bellman Equation:
 			prev_val = Q[C_S, action]
-			new_val = (1 - alpha) * prev_val + alpha * E[k]
+			E.append(min(lmbda*E[k-1] + (reward + gamma * next_max - prev_val), 1))
+			# Bellman Equation:
+			new_val = prev_val + alpha * E[k]
 			# update Q table.
 			Q[C_S, action] = new_val
 
@@ -409,13 +409,9 @@ def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
 				# Choose a based on Q1,Q2
 				if update == "A":
 					action = np.argmax(Q1[C_S])
-					print(action,C_S,Q1,Q1[C_S])
-					input("QA:Wait a minute")
 
 				if update == "B":
 					action = np.argmax(Q2[C_S])
-					print(action,C_S,Q2,Q2[C_S])
-					input("QB:Wait a minute")
 
 			next_state, reward, done = FLenv.step(action)
 			print("STEP:",next_state,reward,done)
@@ -432,9 +428,6 @@ def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
 				new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
 				# update Q1 table.
 				Q1[C_S, action] = new_val
-				print("prev_val","next_max","new_val")
-				print(prev_val,next_max,new_val)
-				input("updateB:Wait a minute")
 
 			if update == "A":
 				prev_val = Q2[C_S, action]
@@ -442,9 +435,6 @@ def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
 				new_val = (1-alpha)*prev_val+alpha*(reward + gamma * next_max)
 				# update Q1 table.
 				Q2[C_S, action] = new_val
-				print("prev_val","next_max","new_val")
-				print(prev_val,next_max,new_val)
-				input("updateA:Wait a minute")
 
 			state = next_state
 			# append to log
