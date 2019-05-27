@@ -305,9 +305,10 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .2, lmbda = 0.3):
 			k = k+1
 			# Updating the trace
 			next_max = np.max(Q[next_state])			
-			E.append(min(lmbda*E[k-1] + (reward + gamma * next_max - prev_val), 1))
 			# Bellman Equation:
 			prev_val = Q[C_S, action]
+
+			E.append(min(lmbda*E[k-1] + (reward + gamma * next_max - prev_val), 1))
 			new_val = prev_val + alpha * E[k]
 			# update Q table.
 			Q[C_S, action] = new_val
