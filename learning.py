@@ -29,7 +29,7 @@ def q_learning(alpha = .1, gamma = .6, epsilon = .2):
 	for i in range(episodes):
 		epochs, penalties, tot_reward = 0, 0, 0
 		done = False
-		print("episode: " + str(i))
+		# print("episode: " + str(i))
 		C_S = FLenv.pos_mtx.flatten().astype(bool)
 		k = 0
 		while not done:
@@ -115,7 +115,7 @@ def q_boltzmann(episodes=1000, alpha = .1, gamma = .6, taus = [0.3]):
 				idx = i // anneal_point
 				tau = taus[idx]
 
-		print("episode: " + str(i))
+		# print("episode: " + str(i))
 		C_S = FLenv.pos_mtx.flatten().astype(bool)
 		while not done:
 
@@ -178,7 +178,7 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 		FLenv.reset()
 		epochs, penalties, tot_reward = 0, 0, 0
 		done = False
-		print("episode: " + str(i))
+		# print("episode: " + str(i))
 		C_S = FLenv.pos_mtx.flatten().astype(bool)
 		k = 0
 		while not done:
@@ -278,7 +278,7 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .2, lmbda = 0.3):
 		FLenv.reset()
 		epochs, penalties, tot_reward = 0, 0, 0
 		done = False
-		print("episode: " + str(i))
+		# print("episode: " + str(i))
 		C_S = FLenv.pos_mtx.flatten().astype(bool)
 		kk = 0
 		while not done:
@@ -343,7 +343,7 @@ def sarsa(alpha = .1, gamma = .6, epsilon = .2):
 		FLenv.reset()
 		epochs, penalties, tot_reward = 0, 0, 0
 		done = False
-		print("episode: " + str(i))
+		# print("episode: " + str(i))
 		C_S = FLenv.pos_mtx.flatten().astype(bool)
 		k = 0
 		while not done:
@@ -397,7 +397,7 @@ def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
 		FLenv.reset()
 		epochs, penalties, tot_reward = 0, 0, 0
 		done = False
-		print("episode: " + str(i))
+		# print("episode: " + str(i))
 		C_S = FLenv.pos_mtx.flatten().astype(bool)
 		k = 0
 		while not done:

@@ -11,5 +11,3 @@ env/
 *.swp
 *~
 
-SARSA*
-Q*
