@@ -31,6 +31,7 @@ def q_learning(alpha = .1, gamma = .6, epsilon = .2):
 		done = False
 		print("episode: " + str(i))
 		C_S = FLenv.pos_mtx.flatten().astype(bool)
+		k = 0
 		while not done:
 
 			if random.random() < epsilon: # change to: i<=episodes to turn on random policy.
@@ -42,7 +43,8 @@ def q_learning(alpha = .1, gamma = .6, epsilon = .2):
 
 			if reward == -10:
 				penalties += 1
-			tot_reward += reward
+			tot_reward += (reward * gamma ** k) # tochange
+			k += 1
 
 			# Bellman Equation:
 			prev_val = Q[C_S, action]
@@ -106,6 +108,7 @@ def q_boltzmann(episodes=1000, alpha = .1, gamma = .6, taus = [0.3]):
 		FLenv.reset()
 		epochs, penalties, tot_reward = 0, 0, 0
 		done = False
+		k = 0
 
 		if anneal_point:
 			if i % anneal_point == 0:
@@ -121,7 +124,8 @@ def q_boltzmann(episodes=1000, alpha = .1, gamma = .6, taus = [0.3]):
 
 			if reward == -10:
 				penalties += 1
-			tot_reward += reward
+			tot_reward += (reward * gamma ** k) # tochange
+			k += 1
 
 			# Bellman Equation:
 			prev_val = Q[C_S, action]
@@ -176,6 +180,7 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 		done = False
 		print("episode: " + str(i))
 		C_S = FLenv.pos_mtx.flatten().astype(bool)
+		k = 0
 		while not done:
 			# Either...
 			if random.uniform(0, 1) < epsilon:# or i <= 250:  # change to: i<=episodes to turn on random policy.
@@ -191,7 +196,8 @@ def q_learning_er(alpha = .1, gamma = .6, epsilon = .1):
 			# Something with penalties
 			if reward == -10:
 				penalties += 1
-			tot_reward += reward
+			tot_reward += (reward * gamma ** k)
+			k += 1
 
 			# compute transition index with current trajectory:
 			t = (k - (l - 1)) * T
@@ -274,6 +280,7 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .2, lmbda = 0.3):
 		done = False
 		print("episode: " + str(i))
 		C_S = FLenv.pos_mtx.flatten().astype(bool)
+		kk = 0
 		while not done:
 			if random.uniform(0, 1) < epsilon:  # change to: i<=episodes to turn on random policy.
 
@@ -291,7 +298,8 @@ def q_learning_et(alpha = .1, gamma = .6, epsilon = .2, lmbda = 0.3):
 
 			if reward == -10:
 				penalties += 1
-			tot_reward += reward
+			tot_reward += (reward * gamma ** kk)
+			kk += 1
 
 			# Updating counter
 			k = k+1
@@ -336,6 +344,7 @@ def sarsa(alpha = .1, gamma = .6, epsilon = .2):
 		done = False
 		print("episode: " + str(i))
 		C_S = FLenv.pos_mtx.flatten().astype(bool)
+		k = 0
 		while not done:
 
 			if random.uniform(0, 1) < epsilon: # change to: i<=episodes to turn on random policy.
@@ -350,7 +359,8 @@ def sarsa(alpha = .1, gamma = .6, epsilon = .2):
 
 			if reward == -10:
 				penalties += 1
-			tot_reward += reward
+			tot_reward += (reward * gamma ** k)
+			k += 1
 
 			# SARSA
 			V = Q[C_S, action] # save Q(S, A)
@@ -388,6 +398,7 @@ def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
 		done = False
 		print("episode: " + str(i))
 		C_S = FLenv.pos_mtx.flatten().astype(bool)
+		k = 0
 		while not done:
 
 			# Choose a* from table 1 or 2
@@ -412,7 +423,9 @@ def q_q_learning(alpha = .1, gamma = .6, epsilon = .2):
 
 			if reward == -10:
 				penalties += 1
-			tot_reward += reward
+			tot_reward += (reward * gamma ** k)
+			k += 1
+
 
 			# Update Q with value from Q_other
 			# Bellman Equation:

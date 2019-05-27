@@ -73,7 +73,7 @@ def test_params(method,iterations=10, **params):
 			record.append(log)
 
 		avg = stat_ts(np.array(record))
-		fname = "method_a{}_g{}_e{}".format(p1, p2, p3)
+		fname = "{}_a{}_g{}_e{}.png".format(method, p1, p2, p3)
 		plot(avg, method, fname,method_pars, epsi=0.2, episodes=1000, save=True)
 	# par_combos = [[i,j,k,] i for 
 	# for series in range(5):
