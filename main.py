@@ -3,7 +3,7 @@
     Assignment Part 2"""
 
 
-
+import os
 import numpy as np
 import random
 import pandas as pd
@@ -73,12 +73,14 @@ def test_params(method,iterations=10, **params):
 			record.append(log)
 
 		avg = stat_ts(np.array(record))
+		fpath = "final/"+"method/"
+		try:
+			os.makedirs(fpath, exist_ok=True)
+		except FileExistsError:
+			pass
 		fname = "{}_a{}_g{}_e{}.png".format(method, p1, p2, p3)
-		plot(avg, method, fname,method_pars, epsi=0.2, episodes=1000, save=True)
-	# par_combos = [[i,j,k,] i for 
-	# for series in range(5):
+		plot(avg, method, fpath+fname,method_pars, epsi=0.2, episodes=1000, save=True)
 
-	# 	log = brain(episodes=1020
 
 
 
